@@ -1,0 +1,477 @@
+#################################################################################
+#										#
+#										#
+#		   	TPM2 makefile - Common to all variations		#
+#			     Written by Ken Goldman				#
+#		       IBM Thomas J. Watson Research Center			#
+#	      $Id: makefile-common 1264 2018-07-12 14:21:07Z kgoldman $		#
+#										#
+# (c) Copyright IBM Corporation 2014 - 2018					#
+# 										#
+# All rights reserved.								#
+# 										#
+# Redistribution and use in source and binary forms, with or without		#
+# modification, are permitted provided that the following conditions are	#
+# met:										#
+# 										#
+# Redistributions of source code must retain the above copyright notice,	#
+# this list of conditions and the following disclaimer.				#
+# 										#
+# Redistributions in binary form must reproduce the above copyright		#
+# notice, this list of conditions and the following disclaimer in the		#
+# documentation and/or other materials provided with the distribution.		#
+# 										#
+# Neither the names of the IBM Corporation nor the names of its			#
+# contributors may be used to endorse or promote products derived from		#
+# this software without specific prior written permission.			#
+# 										#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS		#
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT		#
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR		#
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT		#
+# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,	#
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT		#
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,		#
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY		#
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT		#
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE		#
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.		#
+#										#
+#################################################################################
+
+.SUFFIXES: .o
+
+CCFLAGS += -DUSE_BIT_FIELD_STRUCTURES=NO
+
+# add this for big endian machines
+# CCFLAGS += -DBIG_ENDIAN_TPM=YES 
+
+HEADERS = 				\
+	ActivateCredential_fp.h		\
+	AlgorithmCap_fp.h		\
+	AlgorithmTests_fp.h		\
+	Attest_spt_fp.h			\
+	BaseTypes.h			\
+	Bits_fp.h			\
+	BnConvert_fp.h			\
+	BnMath_fp.h			\
+	BnMemory_fp.h			\
+	BnValues.h			\
+	Capabilities.h			\
+	CertifyCreation_fp.h		\
+	Certify_fp.h			\
+	ChangeEPS_fp.h			\
+	ChangePPS_fp.h			\
+	ClearControl_fp.h		\
+	Clear_fp.h			\
+	ClockRateAdjust_fp.h		\
+	ClockSet_fp.h			\
+	CommandAttributeData.h		\
+	CommandAttributes.h		\
+	CommandAudit_fp.h		\
+	CommandCodeAttributes_fp.h	\
+	CommandDispatchData.h		\
+	CommandDispatcher_fp.h		\
+	Commands.h			\
+	Commit_fp.h			\
+	CompilerDependencies.h		\
+	ContextLoad_fp.h		\
+	ContextSave_fp.h		\
+	Context_spt_fp.h		\
+	CreateLoaded_fp.h		\
+	CreatePrimary_fp.h		\
+	Create_fp.h			\
+	CryptCmac_fp.h			\
+	CryptDes_fp.h			\
+	CryptEcc.h			\
+	CryptEccKeyExchange_fp.h	\
+	CryptEccMain_fp.h		\
+	CryptEccSignature_fp.h		\
+	CryptHash.h			\
+	CryptHashData.h			\
+	CryptHash_fp.h			\
+	CryptPrimeSieve_fp.h		\
+	CryptPrime_fp.h			\
+	CryptRand.h			\
+	CryptRand_fp.h			\
+	CryptRsa.h			\
+	CryptRsa_fp.h			\
+	CryptSelfTest_fp.h		\
+	CryptSmac_fp.h			\
+	CryptSym_fp.h			\
+	CryptTest.h			\
+	CryptUtil_fp.h			\
+	DA_fp.h				\
+	DictionaryAttackLockReset_fp.h	\
+	DictionaryAttackParameters_fp.h	\
+	Duplicate_fp.h			\
+	ECC_Parameters_fp.h		\
+	ECDH_KeyGen_fp.h		\
+	ECDH_ZGen_fp.h			\
+	EC_Ephemeral_fp.h		\
+	EccTestData.h			\
+	EncryptDecrypt2_fp.h		\
+	EncryptDecrypt_fp.h		\
+	EncryptDecrypt_spt_fp.h		\
+	Entity_fp.h			\
+	EventSequenceComplete_fp.h	\
+	EvictControl_fp.h		\
+	ExecCommand_fp.h		\
+	FlushContext_fp.h		\
+	GetCapability_fp.h		\
+	GetCommandAuditDigest_fp.h	\
+	GetRandom_fp.h			\
+	GetSessionAuditDigest_fp.h	\
+	GetTestResult_fp.h		\
+	GetTime_fp.h			\
+	Global.h			\
+	GpMacros.h			\
+	HMAC_Start_fp.h			\
+	HMAC_fp.h			\
+	Handle_fp.h			\
+	HashSequenceStart_fp.h		\
+	HashTestData.h			\
+	Hash_fp.h			\
+	HierarchyChangeAuth_fp.h	\
+	HierarchyControl_fp.h		\
+	Hierarchy_fp.h			\
+	IoBuffers_fp.h			\
+	Implementation.h		\
+	Import_fp.h			\
+	IncrementalSelfTest_fp.h	\
+	InternalRoutines.h		\
+	KdfTestData.h			\
+	LibSupport.h			\
+	LoadExternal_fp.h		\
+	Load_fp.h			\
+	Locality_fp.h			\
+	HMAC_Start_fp.h			\
+	MAC_fp.h			\
+	MAC_Start_fp.h			\
+	MakeCredential_fp.h		\
+	Manufacture_fp.h		\
+	Marshal_fp.h			\
+	MathOnByteBuffers_fp.h		\
+	Memory_fp.h			\
+	NV.h				\
+	NVDynamic_fp.h			\
+	NVReserved_fp.h			\
+	NV_Certify_fp.h			\
+	NV_ChangeAuth_fp.h		\
+	NV_DefineSpace_fp.h		\
+	NV_Extend_fp.h			\
+	NV_GlobalWriteLock_fp.h		\
+	NV_Increment_fp.h		\
+	NV_ReadLock_fp.h		\
+	NV_ReadPublic_fp.h		\
+	NV_Read_fp.h			\
+	NV_SetBits_fp.h			\
+	NV_UndefineSpaceSpecial_fp.h	\
+	NV_UndefineSpace_fp.h		\
+	NV_WriteLock_fp.h		\
+	NV_Write_fp.h			\
+	NV_spt_fp.h			\
+	ObjectChangeAuth_fp.h		\
+	Object_fp.h			\
+	Object_spt_fp.h			\
+	PCR_Allocate_fp.h		\
+	PCR_Event_fp.h			\
+	PCR_Extend_fp.h			\
+	PCR_Read_fp.h			\
+	PCR_Reset_fp.h			\
+	PCR_SetAuthPolicy_fp.h		\
+	PCR_SetAuthValue_fp.h		\
+	PCR_fp.h			\
+	PP_Commands_fp.h		\
+	PP_fp.h				\
+	PRNG_TestVectors.h		\
+	PlatformData.h			\
+	Platform_fp.h			\
+	PolicyAuthValue_fp.h		\
+	PolicyAuthorizeNV_fp.h		\
+	PolicyAuthorize_fp.h		\
+	PolicyCommandCode_fp.h		\
+	PolicyCounterTimer_fp.h		\
+	PolicyCpHash_fp.h		\
+	PolicyDuplicationSelect_fp.h	\
+	PolicyGetDigest_fp.h		\
+	PolicyLocality_fp.h		\
+	PolicyNV_fp.h			\
+	PolicyNameHash_fp.h		\
+	PolicyNvWritten_fp.h		\
+	PolicyOR_fp.h			\
+	PolicyPCR_fp.h			\
+	PolicyPassword_fp.h		\
+	PolicyPhysicalPresence_fp.h	\
+	PolicyRestart_fp.h		\
+	PolicySecret_fp.h		\
+	PolicySigned_fp.h		\
+	PolicyTemplate_fp.h		\
+	PolicyTicket_fp.h		\
+	Policy_spt_fp.h			\
+	Power_fp.h			\
+	PropertyCap_fp.h		\
+	Quote_fp.h			\
+	RSA_Decrypt_fp.h		\
+	RSA_Encrypt_fp.h		\
+	ReadClock_fp.h			\
+	ReadPublic_fp.h			\
+	ResponseCodeProcessing_fp.h	\
+	Response_fp.h			\
+	Rewrap_fp.h			\
+	RsaTestData.h			\
+	SelfTest.h			\
+	SelfTest_fp.h			\
+	SequenceComplete_fp.h		\
+	SequenceUpdate_fp.h		\
+	SessionProcess_fp.h		\
+	Session_fp.h			\
+	SetAlgorithmSet_fp.h		\
+	SetCommandCodeAuditStatus_fp.h	\
+	SetPrimaryPolicy_fp.h		\
+	Shutdown_fp.h			\
+	Sign_fp.h			\
+	Simulator_fp.h			\
+	StartAuthSession_fp.h		\
+	Startup_fp.h			\
+	StirRandom_fp.h			\
+	SupportLibraryFunctionPrototypes_fp.h	\
+	SymmetricTest.h			\
+	SymmetricTestData.h		\
+	TPMB.h				\
+	TcpServerPosix_fp.h		\
+	TestParms_fp.h			\
+	Ticket_fp.h			\
+	Time_fp.h			\
+	Tpm.h				\
+	TpmBuildSwitches.h		\
+	TpmError.h			\
+	TpmFail_fp.h			\
+	TpmSizeChecks_fp.h		\
+	TpmTcpProtocol.h		\
+	TpmToOsslDesSupport_fp.h	\
+	TpmToOsslHash.h			\
+	TpmToOsslMath.h			\
+	TpmToOsslMath_fp.h		\
+	TpmToOsslSupport_fp.h		\
+	TpmToOsslSym.h			\
+	TpmTypes.h			\
+	Unmarshal_fp.h			\
+	Unseal_fp.h			\
+	VendorString.h			\
+	Vendor_TCG_Test_fp.h		\
+	VerifySignature_fp.h		\
+	ZGen_2Phase_fp.h		\
+	_TPM_Hash_Data_fp.h		\
+	_TPM_Hash_End_fp.h		\
+	_TPM_Hash_Start_fp.h		\
+	_TPM_Init_fp.h			\
+	swap.h				\
+					\
+	ntc2lib.h			\
+	ntc2_fp.h
+
+OBJFILES = \
+	AlgorithmCap.o			\
+	AlgorithmTests.o		\
+	AsymmetricCommands.o		\
+	Attest_spt.o			\
+	AttestationCommands.o		\
+	AuditCommands.o			\
+	Bits.o				\
+	BnConvert.o			\
+	BnEccData.o			\
+	BnMath.o			\
+	BnMemory.o			\
+	Cancel.o			\
+	CapabilityCommands.o		\
+	Clock.o				\
+	ClockCommands.o			\
+	CommandAudit.o			\
+	CommandCodeAttributes.o		\
+	CommandDispatcher.o		\
+	ContextCommands.o		\
+	Context_spt.o			\
+	CryptDes.o			\
+	CryptCmac.o			\
+	CryptEccKeyExchange.o		\
+	CryptEccMain.o			\
+	CryptEccSignature.o		\
+	CryptHash.o			\
+	CryptHashData.o			\
+	CryptPrime.o			\
+	CryptPrimeSieve.o		\
+	CryptRand.o			\
+	CryptRsa.o			\
+	CryptSelfTest.o			\
+	CryptSmac.o			\
+	CryptSym.o			\
+	CryptUtil.o			\
+	DA.o				\
+	DictionaryCommands.o		\
+	DuplicationCommands.o		\
+	EACommands.o			\
+	EncryptDecrypt_spt.o		\
+	Entity.o			\
+	Entropy.o			\
+	EphemeralCommands.o		\
+	ExecCommand.o			\
+	Global.o			\
+	Handle.o			\
+	HashCommands.o			\
+	Hierarchy.o			\
+	HierarchyCommands.o		\
+	IoBuffers.o			\
+	IntegrityCommands.o		\
+	Locality.o			\
+	LocalityPlat.o			\
+	ManagementCommands.o		\
+	Manufacture.o			\
+	Marshal.o			\
+	MathOnByteBuffers.o		\
+	Memory.o			\
+	NVCommands.o			\
+	NVDynamic.o			\
+	NVMem.o				\
+	NVReserved.o			\
+	NV_spt.o			\
+	Object.o			\
+	ObjectCommands.o		\
+	Object_spt.o			\
+	PCR.o				\
+	PP.o				\
+	PPPlat.o			\
+	PlatformData.o			\
+	Policy_spt.o			\
+	Power.o				\
+	PowerPlat.o			\
+	PrimeData.o			\
+	PropertyCap.o			\
+	RandomCommands.o		\
+	Response.o			\
+	ResponseCodeProcessing.o	\
+	RsaKeyCache.o			\
+	RunCommand.o			\
+	Session.o			\
+	SessionCommands.o		\
+	SessionProcess.o		\
+	SigningCommands.o		\
+	StartupCommands.o		\
+	SymmetricCommands.o		\
+	TPMCmdp.o			\
+	TPMCmds.o			\
+	TestingCommands.o		\
+	Ticket.o			\
+	Time.o				\
+	TpmFail.o			\
+	TpmSizeChecks.o			\
+	TpmToOsslDesSupport.o		\
+	TpmToOsslMath.o			\
+	TpmToOsslSupport.o		\
+	Unique.o			\
+	Unmarshal.o			\
+	Vendor_TCG_Test.o		\
+					\
+	ntc2lib.o			\
+	ntc2.o
+
+AlgorithmCap.o			: $(HEADERS)
+AlgorithmTests.o		: $(HEADERS)
+AsymmetricCommands.o		: $(HEADERS)
+Attest_spt.o			: $(HEADERS)
+AttestationCommands.o		: $(HEADERS)
+AuditCommands.o			: $(HEADERS)
+Bits.o				: $(HEADERS)
+BnConvert.o			: $(HEADERS)
+BnEccData.o			: $(HEADERS)
+BnMath.o			: $(HEADERS)
+BnMemory.o			: $(HEADERS)
+Cancel.o			: $(HEADERS)
+CapabilityCommands.o		: $(HEADERS)
+Clock.o				: $(HEADERS)
+ClockCommands.o			: $(HEADERS)
+CommandAudit.o			: $(HEADERS)
+CommandCodeAttributes.o		: $(HEADERS)
+CommandDispatcher.o		: $(HEADERS)
+ContextCommands.o		: $(HEADERS)
+Context_spt.o			: $(HEADERS)
+CryptDes.o			: $(HEADERS)
+CryptEccKeyExchange.o		: $(HEADERS)
+CryptEccMain.o			: $(HEADERS)
+CryptEccSignature.o		: $(HEADERS)
+CryptHash.o			: $(HEADERS)
+CryptHashData.o			: $(HEADERS)
+CryptPrime.o			: $(HEADERS)
+CryptPrimeSieve.o		: $(HEADERS)
+CryptRand.o			: $(HEADERS)
+CryptRsa.o			: $(HEADERS)
+CryptSelfTest.o			: $(HEADERS)
+CryptSym.o			: $(HEADERS)
+CryptUtil.o			: $(HEADERS)
+DA.o				: $(HEADERS)
+DictionaryCommands.o		: $(HEADERS)
+DuplicationCommands.o		: $(HEADERS)
+EACommands.o			: $(HEADERS)
+EncryptDecrypt_spt.o		: $(HEADERS)
+Entity.o			: $(HEADERS)
+Entropy.o			: $(HEADERS)
+EphemeralCommands.o		: $(HEADERS)
+ExecCommand.o			: $(HEADERS)
+Global.o			: $(HEADERS)
+Handle.o			: $(HEADERS)
+HashCommands.o			: $(HEADERS)
+Hierarchy.o			: $(HEADERS)
+HierarchyCommands.o		: $(HEADERS)
+IoBuffers.o			: $(HEADERS)
+IntegrityCommands.o		: $(HEADERS)
+Locality.o			: $(HEADERS)
+LocalityPlat.o			: $(HEADERS)
+ManagementCommands.o		: $(HEADERS)
+Manufacture.o			: $(HEADERS)
+Marshal.o			: $(HEADERS)
+MathOnByteBuffers.o		: $(HEADERS)
+Memory.o			: $(HEADERS)
+NVCommands.o			: $(HEADERS)
+NVDynamic.o			: $(HEADERS)
+NVMem.o				: $(HEADERS)
+NVReserved.o			: $(HEADERS)
+NV_spt.o			: $(HEADERS)
+Object.o			: $(HEADERS)
+ObjectCommands.o		: $(HEADERS)
+Object_spt.o			: $(HEADERS)
+PCR.o				: $(HEADERS)
+PP.o				: $(HEADERS)
+PPPlat.o			: $(HEADERS)
+PlatformData.o			: $(HEADERS)
+Policy_spt.o			: $(HEADERS)
+Power.o				: $(HEADERS)
+PowerPlat.o			: $(HEADERS)
+PrimeData.o			: $(HEADERS)
+PropertyCap.o			: $(HEADERS)
+RandomCommands.o		: $(HEADERS)
+Response.o			: $(HEADERS)
+ResponseCodeProcessing.o	: $(HEADERS)
+RsaKeyCache.o			: $(HEADERS)
+RunCommand.o			: $(HEADERS)
+Session.o			: $(HEADERS)
+SessionCommands.o		: $(HEADERS)
+SessionProcess.o		: $(HEADERS)
+SigningCommands.o		: $(HEADERS)
+StartupCommands.o		: $(HEADERS)
+SymmetricCommands.o		: $(HEADERS)
+TPMCmdp.o			: $(HEADERS)
+TPMCmds.o			: $(HEADERS)
+TestingCommands.o		: $(HEADERS)
+Ticket.o			: $(HEADERS)
+Time.o				: $(HEADERS)
+TpmFail.o			: $(HEADERS)
+TpmSizeChecks.o			: $(HEADERS)
+TpmToOsslDesSupport.o		: $(HEADERS)
+TpmToOsslMath.o			: $(HEADERS)
+TpmToOsslSupport.o		: $(HEADERS)
+Unique.o			: $(HEADERS)
+Unmarshal.o			: $(HEADERS)
+Vendor_TCG_Test.o		: $(HEADERS)
+
+ntc2lib.o			: $(HEADERS)
+ntc2.o				: $(HEADERS)

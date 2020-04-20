@@ -1,0 +1,22 @@
+socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 3
+connect(3, {sa_family=AF_INET, sin_port=htons(41434), sin_addr=inet_addr("127.0.0.1")}, 16) = 0
+socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 4
+connect(4, {sa_family=AF_INET, sin_port=htons(41435), sin_addr=inet_addr("127.0.0.1")}, 16) = 0
+write(4, "\x00\x00\x00\x01", 4) = 4
+read(4, "\x00\x00\x00\x00", 4) = 4
+write(4, "\x00\x00\x00\x0b", 4) = 4
+read(4, "\x00\x00\x00\x00", 4) = 4
+read(5, "0\n", 1024)    = 2
+write(3, "\x00\x00\x00\x08\x03\x00\x00\x00\x0c", 9) = 9
+write(3, "\x80\x01\x00\x00\x00\x0c\x00\x00\x01\x44\x00\x00", 12) = 12
+read(3, "\x00\x00\x00\x0a", 4) = 4
+read(3, "\x80\x01\x00\x00\x00\x0a\x00\x00\x01\x00", 10) = 10
+read(3, "\x00\x00\x00\x00", 4) = 4
+write(3, "\x00\x00\x00\x08\x03\x00\x00\x00\x20", 9) = 9
+write(3, "\x80\x01\x00\x00\x00\x20\x00\x00\x01\x41\x00\x14\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14", 32) = 32
+read(3, "\x00\x00\x00\x0a", 4) = 4
+read(3, "\x80\x01\x00\x00\x00\x0a\x00\x00\x01\x43", 10) = 10
+read(3, "\x00\x00\x00\x00", 4) = 4
+write(2, "WARNING:esys:src/tss2-esys/api/Esys_FieldUpgradeData.c:300:Esys_FieldUpgradeData_Finish() Received TPM Error \n", 110) = 110
+write(2, "ERROR:esys:src/tss2-esys/api/Esys_FieldUpgradeData.c:107:Esys_FieldUpgradeData() Esys Finish ErrorCode (0x00000143) \n", 117) = 117
++++ exited with 77 +++

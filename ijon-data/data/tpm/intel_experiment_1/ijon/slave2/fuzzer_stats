@@ -1,0 +1,27 @@
+start_time        : 1552578452
+last_update       : 1552640542
+fuzzer_pid        : 12109
+cycles_done       : 29
+execs_done        : 32642440
+execs_per_sec     : 87.05
+paths_total       : 21416
+paths_favored     : 2213
+paths_found       : 11257
+paths_imported    : 10158
+max_depth         : 14
+cur_path          : 21369
+pending_favs      : 17
+pending_total     : 10588
+variable_paths    : 21300
+stability         : 91.66%
+bitmap_cvg        : 99.97%
+unique_crashes    : 0
+unique_hangs      : 500
+last_path         : 1552640513
+last_crash        : 0
+last_hang         : 1552594165
+execs_since_crash : 32642440
+exec_timeout      : 20
+afl_banner        : slave2
+afl_version       : 2.51b
+command_line      : /data/projects/ijon/2019_ijon_space_explorer/afl-fuzz -m 300 -S slave2 -i ../seed -o ../sync/ijon -- ../../src/tpm_server_ijon -rm
