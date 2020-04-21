@@ -79,3 +79,5 @@ void ijon_disable_feedback();
 You typically want to run AFL with IJON extension in slave mode with multiple other fuzzer instances. If IJON solved the challenging structure, the other fuzzers will pick up the resulting inputs, while ignoring the intermediate queue entries that IJON produced.   
 
 If you make extensive use of the `IJON_MIN` or `IJON_MAX` primitives, you might want to disable normal instrumentation using  `AFL_INST_RATIO=1 make`. 
+
+If, for some reason you want to use the version exactly from the paper (even though it contains known bugs), please use this [commit](https://github.com/RUB-SysSec/ijon/tree/a66bc074598bf81f836c777d15e25060d3ef091b)
