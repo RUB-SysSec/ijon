@@ -15,7 +15,7 @@ IJON is an annotation mechanism that analysts can use to guide fuzzers such as A
 
 
 More data and the results of the experiments can be found 
-<a href="https://github.com/RUB-SysSec/ijon-data/blob/master/readme.md">here:<br>
+<a href="https://github.com/RUB-SysSec/ijon-data/tree/master/ijon-data">here:<br>
 
 <img title="" src="/img/demo.gif" alt="" width="550" align="center">
 </a>
