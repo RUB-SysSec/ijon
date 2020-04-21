@@ -49,6 +49,28 @@ namespace {
       static char ID;
       AFLCoverage() : ModulePass(ID) { }
 
+      // ripped from aflgo
+      static bool isBlacklisted(const Function *F) {
+
+        static const char *Blacklist[] = {
+
+            "asan.",
+            "llvm.",
+            "sancov.",
+            "__ubsan_handle_",
+
+        };
+
+        for (auto const &BlacklistFunc : Blacklist) {
+
+          if (F->getName().startswith(BlacklistFunc)) { return true; }
+
+        }
+
+        return false;
+
+      }
+
       bool runOnModule(Module &M) override;
 
       // StringRef getPassName() const override {
@@ -118,7 +140,10 @@ bool AFLCoverage::runOnModule(Module &M) {
 
   int inst_blocks = 0;
 
-  for (auto &F : M)
+  for (auto &F : M) {
+  
+    if (isBlacklisted(&F)) continue;
+  
     for (auto &BB : F) {
 
       BasicBlock::iterator IP = BB.getFirstInsertionPt();
@@ -174,6 +199,8 @@ bool AFLCoverage::runOnModule(Module &M) {
       inst_blocks++;
 
     }
+    
+  }
 
   /* Say something nice. */
 
