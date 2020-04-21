@@ -4963,35 +4963,6 @@ static u8 fuzz_one(char** argv) {
 
   if (queue_cur->depth > 1) return 1;
 
-#else
-
-  if (pending_favored) {
-
-    /* If we have any favored, non-fuzzed new arrivals in the queue,
-       possibly skip to them at the expense of already-fuzzed or non-favored
-       cases. */
-
-    if ((queue_cur->was_fuzzed || !queue_cur->favored) &&
-        UR(100) < SKIP_TO_NEW_PROB) return 1;
-
-  } else if (!dumb_mode && !queue_cur->favored && queued_paths > 10) {
-
-    /* Otherwise, still possibly skip non-favored cases, albeit less often.
-       The odds of skipping stuff are higher for already-fuzzed inputs and
-       lower for never-fuzzed entries. */
-
-    if (queue_cycle > 1 && !queue_cur->was_fuzzed) {
-
-      if (UR(100) < SKIP_NFAV_NEW_PROB) return 1;
-
-    } else {
-
-      if (UR(100) < SKIP_NFAV_OLD_PROB) return 1;
-
-    }
-
-  }
-
 #endif /* ^IGNORE_FINDS */
 
   if (not_on_tty) {
@@ -5000,7 +4971,10 @@ static u8 fuzz_one(char** argv) {
     fflush(stdout);
   }
 
-  if(ijon_should_schedule(ijon_state)){
+#ifndef IGNORE_FINDS
+
+  if(ijon_should_schedule(ijon_state)) {
+
     printf("scheduled max input!!!!\n");
     ijon_input_info* info = ijon_get_input(ijon_state);
 
@@ -5026,7 +5000,38 @@ static u8 fuzz_one(char** argv) {
     orig_perf = perf_score = 100;
     
     goto havoc_stage;
-  }else{
+
+  } else {
+  
+      if (pending_favored) {
+
+      /* If we have any favored, non-fuzzed new arrivals in the queue,
+         possibly skip to them at the expense of already-fuzzed or non-favored
+         cases. */
+
+      if ((queue_cur->was_fuzzed || !queue_cur->favored) &&
+          UR(100) < SKIP_TO_NEW_PROB) return 1;
+
+    } else if (!dumb_mode && !queue_cur->favored && queued_paths > 10) {
+
+      /* Otherwise, still possibly skip non-favored cases, albeit less often.
+         The odds of skipping stuff are higher for already-fuzzed inputs and
+         lower for never-fuzzed entries. */
+
+      if (queue_cycle > 1 && !queue_cur->was_fuzzed) {
+
+        if (UR(100) < SKIP_NFAV_NEW_PROB) return 1;
+
+      } else {
+
+        if (UR(100) < SKIP_NFAV_OLD_PROB) return 1;
+
+      }
+
+    }
+  
+#endif /* IGNORE_FINDS */
+
     printf("scheduled normal input!!!!\n");
     /* Map the test case into memory. */
 
@@ -5055,7 +5060,13 @@ static u8 fuzz_one(char** argv) {
     cur_depth = queue_cur->depth;
 
     is_doing_ijon = 0;
+    
+#ifndef IGNORE_FINDS
+    
   }
+
+#endif /* IGNORE_FINDS */
+
   /*******************************************
    * CALIBRATION (only if failed earlier on) *
    *******************************************/
@@ -6560,7 +6571,7 @@ havoc_stage:
 
 retry_splicing:
 
-  if (use_splicing && splice_cycle++ < SPLICE_CYCLES &&
+  if (!is_doing_ijon && use_splicing && splice_cycle++ < SPLICE_CYCLES &&
       queued_paths > 1 && queue_cur->len > 1) {
 
     struct queue_entry* target;
@@ -6655,8 +6666,8 @@ abandon_entry:
     }
   }
 
-  munmap(orig_in, queue_cur->len);
-
+  munmap(orig_in, orig_len);
+  
   if (in_buf != orig_in) ck_free(in_buf);
   ck_free(out_buf);
   ck_free(eff_map);
