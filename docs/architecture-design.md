@@ -138,6 +138,76 @@ Ground-truth (both annotations) solves in 4 s.
 Plateau signal that drives the loop: flat `plot_data` + `pending_favs == 0`
 (AFL writes telemetry ~60 s into a quiet run, so detection granularity ≈ that).
 
+### First real target — libpng (M4 step 1)
+
+Built libpng 1.6.44 + zlib 1.3.1 instrumented with AFL++ (`workspace/libpng/`,
+`build.sh`), using the OSS-Fuzz read harness with the CRC action flipped from
+`PNG_CRC_QUIET_USE` to `PNG_CRC_ERROR_QUIT` so the per-chunk CRC-32 is enforced
+as a roadblock. Baseline A/B (single 1-bit seed, ~200 s, plain AFL coverage):
+
+| | CRC enforced (roadblock) | CRC disabled (contrast) |
+|---|---|---|
+| edges | 936 | 1125 |
+| corpus | 395 | 839 (2×) |
+
+The CRC is a **real but *soft* roadblock**: CRC-on still reaches ~83 % of
+CRC-off's edges because libpng **parses each chunk before verifying its CRC**
+(`png_handle_*` then `png_crc_finish`), so AFL exercises mutated chunks'
+parse-branches before the CRC aborts them. What CRC blocks is the deeper,
+multi-chunk, valid-input decode (the 2× corpus / ~189-edge gap, which should
+widen over a long campaign). Implication: libpng's value to the project is
+primarily as a **localization testbed** — the agent must find the CRC compare
+among hundreds of functions — not as a high-drama roadblock. The ~189-edge / 2×
+gap is still well above the loop's keep threshold, so an `IJON_CMP`-on-CRC
+annotation would register as clear progress.
+
+### Localizer — fuzz-introspector (M4 step 2)
+
+We stand up fuzz-introspector as a *separate* helper to localize roadblocks on
+multi-function targets (reachability + reachable-but-uncovered + blocker
+ranking). The full C/C++ frontend (`frontends/llvm`) needs a patched clang + LTO
+pass (flagged as painful in a 2022 internal eval, and impractical here: no
+docker, LLVM-from-source). Instead we use FI's **tree-sitter frontend** (`main.py
+full --language c++`, no compilation) from the cloned repo in a dedicated
+`.venv-fi` (the PyPI package fails — pulls `atheris`; the repo `requirements.txt`
+does not). Gotcha: FI's `EXCLUDE_DIRECTORIES` includes the substring `build`, so a
+target path under any `build/` dir is silently skipped — stage sources at a clean
+path (`workspace/libpng/fi_proj/`). See memory: fuzz-introspector-setup.
+
+Status: FI's static pass runs and correctly maps the call graph from our CRC
+harness into libpng — it sees `png_crc_finish`/`png_crc_read` and the
+`png_handle_*`/`png_read_*` chain. **But** `branch-blockers.json` is empty
+without coverage: the blocker / reachable-but-uncovered analysis — the actual
+*frontier* signal — needs a runtime-coverage overlay. **Step 3 (done):** rather than feed coverage back through FI's finicky overlay,
+we use each tool for its strength and join them ourselves (`harness/localize.py`).
+
+Coverage is unavoidable and source-anonymous in AFL (the bitmap is hashed edge
+IDs), so source coverage must come from replaying the corpus through a coverage
+build. We build an `llvm-cov` variant (`cov-build.sh`: clean clang, no AFL,
+`-fprofile-instr-generate -fcoverage-mapping`, libFuzzer driver), replay the
+`crc_on` AFL corpus (463 inputs) through it, and `llvm-cov export` to JSON.
+(`AFLplusplus/cov-analysis` automates this same replay; we did it directly.)
+
+`localize.py` then joins FI's static `data.yaml` (callsites with source
+locations, reachable-set, cyclomatic complexity) with the llvm-cov counts to
+compute the **coverage frontier**: a COVERED caller whose call to a
+statically-REACHABLE callee is never covered, ranked by the downstream
+uncovered complexity it gates. On libpng this narrows 654 functions to the right
+handful:
+
+```
+Frontier (reachable but UNCOVERED): png_handle_iCCP/iTXt/sCAL/zTXt/pCAL/tEXt/sPLT
+  — the chunk handlers, all dispatched from png_read_info, none covered
+Hot gate (executed a lot, callee uncovered): png_calculate_crc … 2713x
+```
+
+i.e. the chunk handlers are the unreached frontier and the CRC is the hot gate
+the fuzzer can't pass — exactly the localization an analyst needs, computed
+mechanically. This "static graph + replayed coverage → frontier" pattern is
+tool-agnostic and ports to Ghidra/Binja for the binary-only future. **Next
+(step 4):** feed this hint + the frontier/gate functions' source to the agent
+(instead of the whole target) and run the loop on libpng.
+
 ## 8. Findings & lessons (the interesting part)
 
 These are failures the agent/loop hit, and the general fixes they motivated —
