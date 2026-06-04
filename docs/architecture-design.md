@@ -235,8 +235,28 @@ handlers still uncovered. Two takeaways:
    definitively on the toy (M5/M6).
 
 Open follow-ups: a long (hours) libpng campaign to show the break empirically;
-wire source-coverage evaluation into the loop's keep/revert; and the cleaner
-`IJON_MAX` demo on dmg2img.
+and the cleaner `IJON_MAX` demo on dmg2img.
+
+### Source-coverage keep/revert, validated in-loop on libpng
+
+`harness/coverage.py` `CoverageProbe` replays a corpus through the fixed
+llvm-cov build (no IJON/AFL instrumentation) and returns the REAL covered
+function set; `AnalystLoop` takes an optional `coverage_probe` and, when set,
+`_classify` decides keep/revert on real-coverage delta instead of `edges_found`.
+`scripts/libpng_loop.py` runs this coverage-driven loop on libpng (multi-file:
+localize → agent → patch the right .c → rebuild AFL+IJON → fuzz → measure real
+coverage → keep/revert with feedback).
+
+Result (2 iters): the agent did NOT grind the CRC — from the localization
+(frontier = `png_handle_iCCP`) it reasoned the cheaper route is to match the
+chunk *name*, emitting `IJON_CMP(chunk_name, png_iCCP)`. The handler is entered
+once the name matches (before the CRC check), so this **covered 2 new real
+functions** (`png_handle_iCCP`, `png_inflate_read`) → coverage-driven KEEP. The
+near-duplicate retry added no real coverage (only IJON edges) → correctly
+REVERTED. So the metric works both ways in-loop, and the agent broke a real
+frontier on libpng. Caveat: short-window fuzzing has ±2-function coverage noise,
+so the set-difference metric is jittery; a production version should smooth it
+(repeat/threshold) — the named deep functions make this instance a real win.
 
 ## 8. Findings & lessons (the interesting part)
 
