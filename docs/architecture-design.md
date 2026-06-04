@@ -288,9 +288,19 @@ We closed the value-maximization class two ways:
   it in 2 iters: the agent first tried `IJON_CMP(score, TARGET)` (kept as partial
   progress), then landed on the correct `IJON_MAX(score)`.
 
-All three IJON roadblock classes are now demonstrated on real roadblocks with the
-agent deriving the annotation autonomously: `IJON_SET` (maze), `IJON_CMP`
-(checksum + libpng frontier), `IJON_MAX` (maxclimb).
+Coverage of IJON's three *failure classes* (Section III-A of the paper), being
+careful not to conflate primitives with classes:
+- Class 1, **known relevant state values** — ✅ via `IJON_SET` (maze) and
+  `IJON_MAX` (maxclimb). Two primitives, one class.
+- Class 2, **known state changes** — ❌ not demonstrated (`IJON_STATE` on a
+  protocol/message dispatcher; the remaining gap).
+- Class 3, **missing intermediate state** — ✅ via `IJON_CMP` (checksum,
+  two-gate, libpng frontier).
+
+So: 2 of 3 failure classes, 3 primitives (`IJON_SET`/`IJON_MAX`/`IJON_CMP`), each
+derived autonomously by the agent. `IJON_STATE` (class 2) and `IJON_STRDIST`
+remain. (An earlier summary loosely called this "all three classes" — that
+conflated the `IJON_MAX` primitive with a new class; corrected here.)
 
 ## 8. Findings & lessons (the interesting part)
 

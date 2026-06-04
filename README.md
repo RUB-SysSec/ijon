@@ -22,6 +22,8 @@ detection, patching, rebuilding, evaluation — is deterministic Python.
 | maze | known relevant state values | `IJON_SET` | stuck @16 edges | solved 8 s |
 | checksum guard | missing intermediate state | `IJON_CMP` | 16.3M execs, 0 solves | solved 1 s |
 | two-gate (loop) | missing intermediate state ×2 | `IJON_CMP` ×2 | — | solved, 2 iters |
+| maxclimb | known relevant state values | `IJON_MAX` | 0 crashes / 16.8M execs | solved, 2 iters |
+| libpng (real lib) | missing intermediate state | `IJON_CMP` | soft CRC roadblock | reached a new frontier handler |
 
 In every case the agent saw only the **answer-stripped** source (a fairness gate
 removes the ground-truth annotation and any `ijon` mention) plus the plateau
@@ -84,8 +86,40 @@ Model defaults to `deepseek/deepseek-v4-pro`; override with `--model` or
 
 ## Status
 
-Working end to end on three benchmark targets across two of IJON's three
-roadblock classes, including the autonomous multi-annotation loop. Open work:
-frontier localization for large multi-function targets (bitmap + CFG), the
-`IJON_STATE` roadblock class, and a coverage metric that separates real edges
-from IJON map entries. See the architecture notes.
+The agent works end to end and autonomously derives the right annotation on
+several targets, covering **two of IJON's three roadblock classes** with three
+primitives:
+
+- *Known relevant state values* — `IJON_SET` (maze) and `IJON_MAX` (maxclimb).
+- *Missing intermediate state* — `IJON_CMP` (checksum, two-gate, and a real
+  libpng frontier).
+
+Also working: the iterative keep/revert/retry loop, source-coverage evaluation
+(immune to IJON map inflation), and frontier localization (fuzz-introspector +
+llvm-cov) on libpng.
+
+Not yet covered: IJON's third class, *known state changes* (`IJON_STATE`, e.g. a
+protocol/message dispatcher), and the `IJON_STRDIST` primitive. A long libpng
+campaign to break that target's soft CRC roadblock empirically is also deferred.
+See `docs/architecture-design.md`.
+
+## Acknowledgments & provenance
+
+This repository is a fork of
+[RUB-SysSec/ijon](https://github.com/RUB-SysSec/ijon), the reference
+implementation of **IJON** (Cornelius Aschermann, Sergej Schumilo, Ali Abbasi,
+Thorsten Holz — *IJON: Exploring Deep State Spaces via Fuzzing*, IEEE S&P 2020).
+This project automates IJON's human-analyst role with an LLM; it **builds
+directly on the IJON technique and codebase** and would not exist without it.
+
+- **Inherited from upstream IJON / AFL, unmodified by this project:** the
+  original AFL/IJON sources at the repo root (`afl-fuzz.c`, `llvm_mode/`,
+  `qemu_mode/`, `test/ijon-maze.c`, etc.) — Copyright Google Inc. and the IJON
+  authors, licensed under the Apache License 2.0 (see the per-file headers). The
+  agent does not modify these; at runtime it builds targets against AFL++'s IJON
+  support, not this in-repo AFL.
+- **Original to this project (the LLM-analyst agent):** `harness/`, `scripts/`,
+  `workspace/<target>/{src,in}`, `tests/`, `docs/architecture-design.md`, and
+  this README.
+
+If you use this work, please also cite the original IJON paper.
