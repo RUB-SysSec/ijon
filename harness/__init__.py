@@ -5,6 +5,9 @@ from .plateau import PlateauDetector
 from .build import (Builder, Annotation, CompileResult, apply_annotation,
                     strip_ijon_blocks, redact_ijon_hints, make_clean_source)
 from .loop import AnalystLoop, TargetSpec, LoopResult, Attempt
+from .localize import (load_fi, load_cov, compute_frontier, localization_hint,
+                       build_localization_context)
+from .coverage import CoverageProbe, CovSnapshot
 
 __all__ = [
     "AflConfig", "FuzzerController", "Snapshot", "RunResult",
@@ -12,4 +15,6 @@ __all__ = [
     "Builder", "Annotation", "CompileResult", "apply_annotation",
     "strip_ijon_blocks", "redact_ijon_hints", "make_clean_source",
     "AnalystLoop", "TargetSpec", "LoopResult", "Attempt",
+    "load_fi", "load_cov", "compute_frontier", "localization_hint",
+    "build_localization_context", "CoverageProbe", "CovSnapshot",
 ]

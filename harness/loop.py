@@ -61,7 +61,7 @@ class AnalystLoop:
                  max_iters: int = 4, plateau_timeout: float = 95,
                  eval_timeout: float = 90, min_stall: int = 30,
                  advance_margin: int = 3, saturation_edges: int = 20000,
-                 log=print):
+                 coverage_probe=None, log=print):
         self.cfg = cfg
         self.spec = spec
         self.builder = Builder(cfg)
@@ -72,6 +72,10 @@ class AnalystLoop:
         self.eval_timeout = eval_timeout
         self.advance_margin = advance_margin
         self.saturation_edges = saturation_edges
+        # Optional CoverageProbe: when set, keep/revert uses REAL source coverage
+        # (immune to IJON map inflation) instead of AFL edges_found. Required for
+        # real targets where success is coverage, not a crash.
+        self.coverage_probe = coverage_probe
         self.log = log
 
     # --- paths ---
@@ -85,7 +89,9 @@ class AnalystLoop:
         return self.spec.workspace / "out" / name
 
     def _build_and_fuzz(self, source: str, tag: str, ijon: bool,
-                        until_solved_only: bool, timeout: float) -> Snapshot:
+                        until_solved_only: bool, timeout: float) -> tuple:
+        """Returns (snapshot, queue_dir). queue_dir is where the corpus lands,
+        for optional source-coverage measurement."""
         stem = Path(self.spec.src).stem
         src_path = self._src(f"{stem}_{tag}.c")
         src_path.write_text(source)
@@ -93,7 +99,7 @@ class AnalystLoop:
         if not cr.ok:
             self.log(f"    [build FAILED] {tag}:\n      " +
                      "\n      ".join(cr.stdout.splitlines()[-6:]))
-            return None
+            return None, None
         if ijon and cr.header_missing:
             self.log(f"    [warn] IJON header missing for {tag}")
         fc = FuzzerController(cr.binary, self.spec.workspace / self.spec.seeds,
@@ -104,7 +110,16 @@ class AnalystLoop:
         else:
             pred = lambda s: s.solved or self.detector.is_plateau(s)
         fc.run_until(pred, timeout=timeout, poll=3.0)
-        return fc.snapshot()
+        return fc.snapshot(), self._out(tag) / "default" / "queue"
+
+    def _measure_cov(self, queue_dir, tag: str):
+        if self.coverage_probe is None or queue_dir is None:
+            return None
+        try:
+            return self.coverage_probe.measure(queue_dir, tag=tag)
+        except Exception as e:
+            self.log(f"    [warn] coverage measure failed: {e}")
+            return None
 
     @staticmethod
     def _norm(s: str) -> str:
@@ -114,14 +129,26 @@ class AnalystLoop:
         target = self._norm(code)
         return any(self._norm(line) == target for line in working.splitlines())
 
-    def _classify(self, before: Snapshot, after: Snapshot) -> tuple:
-        """Return (verdict, note). verdict in
-        solved | advanced | saturated | stalled. A huge edge jump is treated as
-        IJON-map saturation (harmful), NOT progress."""
+    def _classify(self, before: Snapshot, after: Snapshot,
+                  before_cov=None, after_cov=None) -> tuple:
+        """Return (verdict, note). verdict in solved|advanced|saturated|stalled.
+        With a CoverageProbe, progress = REAL new source coverage (immune to
+        IJON map inflation). Otherwise fall back to AFL edges (toy targets)."""
         if after is None:
             return "stalled", "build/run produced no telemetry"
         if after.solved:
             return "solved", "goal reached"
+        if self.coverage_probe is not None and before_cov is not None \
+                and after_cov is not None:
+            new = after_cov.new_vs(before_cov)
+            if new:
+                return "advanced", (f"{len(new)} NEW source functions covered "
+                                    f"(e.g. {sorted(new)[:4]}); real coverage "
+                                    f"{before_cov.n_functions}->{after_cov.n_functions} fns")
+            return ("stalled", f"no new source coverage "
+                    f"({before_cov.n_functions}->{after_cov.n_functions} functions) — "
+                    f"the annotation did not let the fuzzer reach new code "
+                    f"(raw edge growth from IJON map entries does not count)")
         delta = after.edges_found - before.edges_found
         if after.edges_found >= self.saturation_edges and delta > 0:
             return ("saturated",
@@ -143,15 +170,18 @@ class AnalystLoop:
 
         # initial run of the clean target to a plateau (baseline)
         self.log("[init] fuzzing clean target to plateau")
-        baseline = self._build_and_fuzz(working, "clean", ijon=False,
-                                         until_solved_only=False,
-                                         timeout=self.plateau_timeout)
+        baseline, base_queue = self._build_and_fuzz(
+            working, "clean", ijon=False, until_solved_only=False,
+            timeout=self.plateau_timeout)
         if baseline is None:
             self.log("[init] clean build/run failed"); return result
         if baseline.solved:
             self.log("[init] target solved without annotation?!")
             result.solved = True; return result
-        self.log(f"[init] baseline: {self.detector.explain(baseline)}")
+        baseline_cov = self._measure_cov(base_queue, "base")
+        cov_note = (f"; real coverage {baseline_cov.n_functions} fns"
+                    if baseline_cov else "")
+        self.log(f"[init] baseline: {self.detector.explain(baseline)}{cov_note}")
 
         history = []  # reverted attempts to feed back
         for it in range(1, self.max_iters + 1):
@@ -189,14 +219,15 @@ class AnalystLoop:
                                                baseline.edges_found, "reverted", note))
                 continue
 
-            after = self._build_and_fuzz(patched, f"iter{it}", ijon=True,
-                                         until_solved_only=False,
-                                         timeout=self.eval_timeout)
+            after, after_queue = self._build_and_fuzz(
+                patched, f"iter{it}", ijon=True, until_solved_only=False,
+                timeout=self.eval_timeout)
+            after_cov = self._measure_cov(after_queue, f"iter{it}")
             be, ae = baseline.edges_found, (after.edges_found if after else baseline.edges_found)
-            verdict, note = self._classify(baseline, after)
+            verdict, note = self._classify(baseline, after, baseline_cov, after_cov)
 
             if verdict == "solved":
-                self.log(f"    [SOLVED] edges {be}->{ae}, crash saved")
+                self.log(f"    [SOLVED] {note}")
                 result.solved = True
                 result.kept.append(prop.annotation)
                 result.attempts.append(Attempt(it, prop, be, ae, "solved", note))
@@ -206,6 +237,8 @@ class AnalystLoop:
             if verdict == "advanced":
                 self.log(f"    [KEEP] {note}")
                 working = patched; baseline = after
+                if after_cov is not None:
+                    baseline_cov = after_cov     # new coverage ceiling
                 result.kept.append(prop.annotation)
                 result.attempts.append(Attempt(it, prop, be, ae, "kept", note))
             else:  # saturated | stalled -> revert and feed the reason back

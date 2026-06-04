@@ -151,14 +151,23 @@ def _history_block(history: list) -> str:
 
 def build_user_prompt(source: str, snap: Snapshot,
                       source_name: str = "target.c",
-                      history: list = None) -> str:
+                      history: list = None,
+                      localization: str = None) -> str:
+    loc = ""
+    if localization:
+        loc = (f"LOCALIZATION (for a large multi-function target, this is where "
+               f"the fuzzer is stuck — only the relevant functions' source is "
+               f"shown below, not the whole program):\n{localization}\n\n")
     return (
         f"IJON PRIMITIVE REFERENCE:\n{IJON_REFERENCE}\n\n"
         f"FUZZER SITUATION (plateaued):\n{_telemetry_block(snap)}\n"
         f"{_history_block(history)}"
+        f"{loc}"
         f"TARGET SOURCE ({source_name}):\n```c\n{source}\n```\n\n"
         f"Analyze why the fuzzer is stuck and propose exactly one IJON "
-        f"annotation to break the plateau. Respond with only the JSON object.")
+        f"annotation to break the plateau. The annotation will be inserted into "
+        f"the source file that contains your chosen `after_substring` line; pick "
+        f"a line that is unique and in scope. Respond with only the JSON object.")
 
 
 def parse_proposal(obj: dict, llm: LLMResult) -> AnnotationProposal:
@@ -187,7 +196,8 @@ def parse_proposal(obj: dict, llm: LLMResult) -> AnnotationProposal:
 
 def propose_annotation(model: AnalystModel, source: str, snap: Snapshot,
                        source_name: str = "target.c",
-                       history: list = None) -> AnnotationProposal:
-    user = build_user_prompt(source, snap, source_name, history)
+                       history: list = None,
+                       localization: str = None) -> AnnotationProposal:
+    user = build_user_prompt(source, snap, source_name, history, localization)
     res = model.complete_json(_SYSTEM, user)
     return parse_proposal(res.obj, res)

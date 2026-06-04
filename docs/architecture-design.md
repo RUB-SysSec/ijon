@@ -204,9 +204,39 @@ Hot gate (executed a lot, callee uncovered): png_calculate_crc … 2713x
 i.e. the chunk handlers are the unreached frontier and the CRC is the hot gate
 the fuzzer can't pass — exactly the localization an analyst needs, computed
 mechanically. This "static graph + replayed coverage → frontier" pattern is
-tool-agnostic and ports to Ghidra/Binja for the binary-only future. **Next
-(step 4):** feed this hint + the frontier/gate functions' source to the agent
-(instead of the whole target) and run the loop on libpng.
+tool-agnostic and ports to Ghidra/Binja for the binary-only future. ### Step 4 — agent-on-libpng using the localizer (done, with a caveat)
+
+`localize.py` now also surfaces the **gate** (a covered function the uncovered
+frontier handlers commonly call — `png_crc_finish`, found via `common_gates`),
+expands one level to the actual check (`png_crc_error`), slices those functions'
+source (`extract_function_source` / `build_localization_context`), and the agent
+prompt grew a `localization` slot. Fed only those ~10 focused functions (not all
+of libpng), v4-pro **correctly localized and annotated**: failure class
+`missing_intermediate_state`, *"without a valid CRC, code like png_handle_iCCP
+is never reached"* (it used the frontier hint), and `IJON_CMP(crc, png_ptr->crc)`
+placed after `crc = png_get_uint_32(crc_bytes);` in `png_crc_error` — exactly the
+right primitive, function, and placement. We patched `pngrutil.c`, rebuilt
+AFL+IJON (verified the header was force-included and the annotation is live), and
+fuzzed.
+
+**Honest outcome:** in a 200 s run the annotation produced **no real coverage
+gain** — source-coverage replay shows 132 vs 133 functions covered, frontier
+handlers still uncovered. Two takeaways:
+1. **Raw AFL edges lied:** they rose to 1269 (above the 1125 CRC-off ceiling),
+   inflated by IJON map entries; only the source-coverage replay revealed the
+   handlers are still dark. This is concrete proof that keep/revert on real
+   targets must use *source* coverage, not `edges_found` (cf. §8.4).
+2. **It's a throughput, not an agent, problem:** the frontier handlers sit 2+
+   CRC-32s deep from the minimal seed (pass IHDR's CRC, then synthesize a new
+   chunk with a valid CRC); 200 s of slow libpng execs can't grind that, and
+   libpng-CRC is a soft long-timescale roadblock anyway. The agent's job — the
+   novel part: autonomous localization + correct annotation in a 30k-LOC library
+   — succeeded. That IJON_CMP cracks a 32-bit checksum was already proven
+   definitively on the toy (M5/M6).
+
+Open follow-ups: a long (hours) libpng campaign to show the break empirically;
+wire source-coverage evaluation into the loop's keep/revert; and the cleaner
+`IJON_MAX` demo on dmg2img.
 
 ## 8. Findings & lessons (the interesting part)
 

@@ -34,6 +34,7 @@ class FuncInfo:
     complexity: int
     reached: list                      # transitively reachable function names
     callsites: list = field(default_factory=list)  # (callee, file, line)
+    line_end: int = 0
 
 
 def load_fi(yaml_path: Path) -> dict:
@@ -58,6 +59,7 @@ def load_fi(yaml_path: Path) -> dict:
             complexity=int(e.get("CyclomaticComplexity", 0) or 0),
             reached=list(e.get("functionsReached", []) or []),
             callsites=callsites,
+            line_end=int(e.get("functionLinenumberEnd", 0) or 0),
         )
     return out
 
@@ -159,6 +161,92 @@ def localization_hint(fi: dict, cov: dict, top_n: int = 8) -> str:
     for name, c, sf, ln in hot:
         lines.append(f"    - {name}  ({Path(sf).name}:{ln})  executed {c}x")
     return "\n".join(lines)
+
+
+def common_gates(fi: dict, cov: dict, top_n: int = 6, frontier_n: int = 12) -> list:
+    """Covered functions that the uncovered frontier functions commonly CALL.
+    A function every blocked handler invokes (e.g. a CRC/length/format check) is
+    the shared gate the fuzzer keeps hitting but can't pass — even when raw
+    execution count would rank an inner loop higher. Returns [(name, hits)]."""
+    from collections import Counter
+    def covered(n): return cov.get(n, 0) > 0
+    frontier_callees = []
+    for e in compute_frontier(fi, cov)[:frontier_n]:
+        if e.callee not in frontier_callees:
+            frontier_callees.append(e.callee)
+    hits: Counter = Counter()
+    for callee in frontier_callees:
+        info = fi.get(callee)
+        if not info:
+            continue
+        seen = set()
+        for dst, _, _ in info.callsites:
+            if dst in fi and covered(dst) and dst not in seen:
+                hits[dst] += 1
+                seen.add(dst)
+    return hits.most_common(top_n)
+
+
+def candidate_functions(fi: dict, cov: dict, top_n: int = 6) -> list:
+    """Functions worth showing the LLM: the hot gates (covered, with an
+    uncovered reachable callee) plus the callers of the top frontier edges.
+    These are where an annotation likely belongs or near it."""
+    names: list = []
+    for name, _, _, _ in hot_functions(fi, cov, top=top_n):
+        if name not in names:
+            names.append(name)
+    for e in compute_frontier(fi, cov)[:top_n]:
+        if e.caller not in names:
+            names.append(e.caller)
+    return names
+
+
+def extract_function_source(fi: dict, names: list,
+                            source_root: Optional[Path] = None) -> dict:
+    """Return {name: source_text} for the named functions, sliced from their
+    source files by FI's line range. If source_root is given, file basenames are
+    resolved there (use when FI's recorded paths differ from where you read)."""
+    out: dict = {}
+    for name in names:
+        info = fi.get(name)
+        if not info or not info.source_file:
+            continue
+        path = Path(info.source_file)
+        if source_root is not None:
+            path = Path(source_root) / path.name
+        if not path.exists():
+            continue
+        lines = path.read_text(errors="replace").splitlines()
+        start = max(0, int(info.line) - 1)
+        end = int(info.line_end) if info.line_end and info.line_end > info.line \
+            else start + 80
+        text = "\n".join(lines[start:end])
+        out[name] = f"// {path.name}:{info.line}  ({name})\n{text}"
+    return out
+
+
+def build_localization_context(fi: dict, cov: dict,
+                               source_root: Optional[Path] = None) -> tuple:
+    """Assemble what the analyst LLM sees for a multi-function target: the
+    frontier/gate hint, plus the source of the most likely annotation sites —
+    the shared gates the frontier calls, those gates' covered callees (where the
+    actual check usually lives), and the top frontier dispatch sites."""
+    hint = localization_hint(fi, cov)
+    names: list = []
+
+    def add(n):
+        if n in fi and n not in names:
+            names.append(n)
+
+    for g, _ in common_gates(fi, cov, top_n=4):
+        add(g)
+        for dst, _, _ in fi[g].callsites:           # one level down: the check
+            if dst in fi and cov.get(dst, 0) > 0:
+                add(dst)
+    for e in compute_frontier(fi, cov)[:3]:
+        add(e.caller)
+    src = extract_function_source(fi, names, source_root)
+    return hint, src
 
 
 if __name__ == "__main__":

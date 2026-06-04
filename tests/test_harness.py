@@ -159,5 +159,31 @@ class TestLoopLogic(unittest.TestCase):
         self.assertEqual(self.loop._classify(before, after)[0], "saturated")
 
 
+class TestCoverageClassify(unittest.TestCase):
+    """With a CoverageProbe, keep/revert uses REAL source coverage, not edges."""
+    def setUp(self):
+        self.loop = AnalystLoop(AflConfig(), TargetSpec(workspace="x", src="y.c"),
+                                model=object(), coverage_probe=object())
+
+    def test_advanced_on_new_functions(self):
+        from harness.coverage import CovSnapshot
+        before = make_snapshot(edges_found=10, saved_crashes=0)
+        after = make_snapshot(edges_found=10, saved_crashes=0)
+        bcov = CovSnapshot(covered={"a", "b"}, n_functions=2)
+        acov = CovSnapshot(covered={"a", "b", "png_handle_PLTE"}, n_functions=3)
+        v, _ = self.loop._classify(before, after, bcov, acov)
+        self.assertEqual(v, "advanced")
+
+    def test_stalled_when_no_new_coverage_despite_edge_blowup(self):
+        # the libpng lesson: edges exploded but real coverage flat -> NOT progress
+        from harness.coverage import CovSnapshot
+        before = make_snapshot(edges_found=936, saved_crashes=0)
+        after = make_snapshot(edges_found=1269, saved_crashes=0)  # IJON-inflated
+        bcov = CovSnapshot(covered={"a", "b"}, n_functions=2)
+        acov = CovSnapshot(covered={"a", "b"}, n_functions=2)   # no new code
+        v, _ = self.loop._classify(before, after, bcov, acov)
+        self.assertEqual(v, "stalled")
+
+
 if __name__ == "__main__":
     unittest.main()
