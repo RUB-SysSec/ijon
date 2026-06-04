@@ -1,0 +1,25 @@
+diff --git a/pngread.c b/pngread.c
+index 07a39df..5f30c84 100644
+--- a/pngread.c
++++ b/pngread.c
+@@ -103,10 +103,20 @@ png_read_info(png_structrp png_ptr, png_inforp info_ptr)
+    /* Read and check the PNG file signature. */
+    png_read_sig(png_ptr, info_ptr);
+ 
++#ifdef IJON_SET
++   png_uint_32 chunk_seq_log = 0;   /* IJON class-2: rolling log of chunk types */
++#endif
++
+    for (;;)
+    {
+       png_uint_32 length = png_read_chunk_header(png_ptr);
+       png_uint_32 chunk_name = png_ptr->chunk_name;
++#ifdef IJON_SET
++      /* state-change log: expose the SEQUENCE of processed chunk types so the
++       * fuzzer explores chunk-type combinations, not just each type once */
++      chunk_seq_log = (chunk_seq_log << 8) | (chunk_name & 0xFFu);
++      IJON_SET(ijon_hashint(0, chunk_seq_log));
++#endif
+ 
+       /* IDAT logic needs to happen here to simplify getting the two flags
+        * right.

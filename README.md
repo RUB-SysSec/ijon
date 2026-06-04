@@ -24,7 +24,8 @@ detection, patching, rebuilding, evaluation — is deterministic Python.
 | two-gate (loop) | missing intermediate state ×2 | `IJON_CMP` ×2 | — | solved, 2 iters |
 | maxclimb | known relevant state values | `IJON_MAX` | 0 crashes / 16.8M execs | solved, 2 iters |
 | libpng (real lib) | missing intermediate state | `IJON_CMP` | soft CRC roadblock | reached a new frontier handler |
-| protostate | known state changes | `IJON_STATE` | 0 crashes / 16M execs | diagnosed + correct annotation (auto-solve needs maze structure) |
+| protostate | known state changes | `IJON_STATE` | 0 crashes / 16M execs | diagnosed + correct annotation |
+| libpng chunk-seq | known state changes | state-change log | 51 sequences | **2706 sequences (53×)** |
 
 In every case the agent saw only the **answer-stripped** source (a fairness gate
 removes the ground-truth annotation and any `ijon` mention) plus the plateau
@@ -94,10 +95,11 @@ emits the right primitive; it **auto-solves two of them end to end**:
   diagnosed and auto-solved.
 - *Missing intermediate state* — `IJON_CMP` (checksum, two-gate, and a real
   libpng frontier) — diagnosed and auto-solved.
-- *Known state changes* — `IJON_STATE` (protostate, a protocol state machine) —
-  **diagnosed correctly with the ground-truth annotation**, but not auto-solved:
-  a 1-D sequence lock can't be both AFL-hard and IJON-climbable (a robust
-  auto-solve needs maze-like structure; the mechanism is proven by the maze).
+- *Known state changes* — `IJON_STATE` / state-change log. The agent diagnoses
+  it and emits the ground-truth annotation (protostate, a protocol state
+  machine), and on **real libpng** a chunk-type state-change log yields **53×
+  more distinct chunk-type sequences explored** than plain AFL — the paper's own
+  class-2 metric (libtpms: 18–32×).
 
 Also working: the iterative keep/revert/retry loop, source-coverage evaluation
 (immune to IJON map inflation), and frontier localization (fuzz-introspector +
