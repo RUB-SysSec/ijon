@@ -1,0 +1,15 @@
+.venv/
+.env
+__pycache__/
+*.pyc
+
+# fuzzing artifacts and build outputs
+workspace/*/out/
+workspace/*/targets/
+
+# generated source variants (clean/patched/per-iteration); keep canonical only
+workspace/*/src/*_clean.c
+workspace/*/src/*_clean_tmp.c
+workspace/*/src/*_patched.c
+workspace/*/src/*_llm*.c
+workspace/*/src/*_iter*.c
