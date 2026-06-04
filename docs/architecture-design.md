@@ -143,7 +143,9 @@ Plateau signal that drives the loop: flat `plot_data` + `pending_favs == 0`
 ### First real target — libpng (M4 step 1)
 
 Built libpng 1.6.44 + zlib 1.3.1 instrumented with AFL++ (`workspace/libpng/`,
-`build.sh`), using the OSS-Fuzz read harness with the CRC action flipped from
+`build.sh`) — all libpng numbers below were measured on 1.6.44; `build.sh` now
+pins the latest 1.6.58 (the roadblock mechanisms are unchanged across 1.6.x).
+Using the OSS-Fuzz read harness with the CRC action flipped from
 `PNG_CRC_QUIET_USE` to `PNG_CRC_ERROR_QUIT` so the per-chunk CRC-32 is enforced
 as a roadblock. Baseline A/B (single 1-bit seed, ~200 s, plain AFL coverage):
 

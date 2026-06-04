@@ -18,7 +18,12 @@ mkdir -p "$BUILD" "$WS/targets" "$WS/in"
 
 # 1. sources (pinned)
 [ -d "$BUILD/zlib" ]   || git clone --depth 1 -b v1.3.1  https://github.com/madler/zlib.git    "$BUILD/zlib"
-[ -d "$LIBPNG" ]       || git clone --depth 1 -b v1.6.44 https://github.com/pnggroup/libpng.git "$LIBPNG"
+[ -d "$LIBPNG" ]       || git clone --depth 1 -b v1.6.58 https://github.com/pnggroup/libpng.git "$LIBPNG"
+# NOTE: the recorded experimental numbers (CRC A/B, frontier localization, the
+# 53x chunk-sequence-diversity result) were measured on libpng 1.6.44; the pin
+# is now the latest 1.6.58. The roadblock mechanisms (per-chunk CRC, chunk
+# dispatch) are unchanged across 1.6.x, so the conclusions hold; only re-run if
+# you want the numbers restated on 1.6.58.
 
 # 2. zlib (instrumented, static)
 ( cd "$BUILD/zlib" && CC=afl-clang-fast ./configure --static --prefix="$ZINST" && \
