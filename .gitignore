@@ -20,3 +20,6 @@ workspace/*/src/*_clean_tmp.c
 workspace/*/src/*_patched.c
 workspace/*/src/*_llm*.c
 workspace/*/src/*_iter*.c
+
+# regenerable dmg2img crash variant (see make_seed.py)
+workspace/dmg2img/max.dmg

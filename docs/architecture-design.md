@@ -129,6 +129,8 @@ the **specific answer** by the target.
 | M3 | maze (agent, leak-free) | known_relevant_state_values | `IJON_SET` | stuck | **solved 8 s** |
 | M5 | checksum (agent, leak-free) | missing_intermediate_state | `IJON_CMP` | 16.3M execs, 0 solves | **solved 1 s** |
 | M6 | two-gate (autonomous loop) | missing_intermediate_state ×2 | `IJON_CMP` ×2 | — | **solved, 2 iters** (v4-pro) |
+| M7 | maxclimb (synthetic IJON_MAX) | known_relevant_state_values | `IJON_MAX` | 0 crashes/16.8M execs | **solved, 2 iters** |
+| M7 | dmg2img (real, IJON_MAX) | — | `IJON_MAX` (ground truth) | finds crash in 154s | honest negative — see §below |
 
 M6 detail: the loop autonomously kept `IJON_CMP(stored, actual)` (gate 1), then
 diagnosed the second gate behind it and added `IJON_CMP(tag, 0xC0FFEE42)`
@@ -257,6 +259,38 @@ REVERTED. So the metric works both ways in-loop, and the agent broke a real
 frontier on libpng. Caveat: short-window fuzzing has ±2-function coverage noise,
 so the set-difference metric is jittery; a production version should smooth it
 (repeat/threshold) — the named deep functions make this instance a real win.
+
+### The third class — IJON_MAX (M7)
+
+We closed the value-maximization class two ways:
+
+- **dmg2img (real target), honest negative.** Built dmg2img with AFL+ASAN
+  (`workspace/dmg2img`; needed a fetched `bzlib.h` + linking `libbz2.so.1.0`),
+  crafted a valid minimal DMG seed (512-byte big-endian koly trailer at EOF with
+  `koly` sig + nonzero XMLOffset/XMLLength; the plist must contain
+  `<plist version="1.0">`/`<key>blkx</key>`/`</array>`/`</plist>` to avoid a
+  spurious NULL-deref at `dmg2img.c:245`). The overflow fires exactly at the
+  paper's `dmg2img.c:240` (`plist[XMLLength]='\0'` with `XMLLength=UINT64_MAX`).
+  **But plain AFL finds the crash in 154 s** — it just sets the 8 `XMLLength`
+  bytes to `0xFF` (a standard AFL interesting-value) while the trivial koly stays
+  intact. So this stripped-down setup is *not* a roadblock and doesn't
+  demonstrate `IJON_MAX` necessity (the paper's difficulty was harder real DMG
+  inputs / the CGC env). We did not fake a plateau.
+
+- **maxclimb (synthetic), the clean demo.** A target whose score = how many input
+  positions match a per-position pseudo-random expected byte; goal = score ≥ 32.
+  The score has no coverage gradient (same compare every position) and the bytes
+  can't be guessed in bulk, so **plain AFL plateaus (0 crashes in 16.8M execs)**;
+  `IJON_MAX(score)` solves in <1 s. First design used a *contiguous* prefix and
+  even the IJON ground truth stalled — multi-byte havoc corrupts a fragile
+  prefix; the fix is a **non-contiguous match count** (adding a match doesn't
+  require preserving a prefix), which climbs robustly. The autonomous loop solved
+  it in 2 iters: the agent first tried `IJON_CMP(score, TARGET)` (kept as partial
+  progress), then landed on the correct `IJON_MAX(score)`.
+
+All three IJON roadblock classes are now demonstrated on real roadblocks with the
+agent deriving the annotation autonomously: `IJON_SET` (maze), `IJON_CMP`
+(checksum + libpng frontier), `IJON_MAX` (maxclimb).
 
 ## 8. Findings & lessons (the interesting part)
 
