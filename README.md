@@ -24,6 +24,7 @@ detection, patching, rebuilding, evaluation — is deterministic Python.
 | two-gate (loop) | missing intermediate state ×2 | `IJON_CMP` ×2 | — | solved, 2 iters |
 | maxclimb | known relevant state values | `IJON_MAX` | 0 crashes / 16.8M execs | solved, 2 iters |
 | libpng (real lib) | missing intermediate state | `IJON_CMP` | soft CRC roadblock | reached a new frontier handler |
+| protostate | known state changes | `IJON_STATE` | 0 crashes / 16M execs | diagnosed + correct annotation (auto-solve needs maze structure) |
 
 In every case the agent saw only the **answer-stripped** source (a fairness gate
 removes the ground-truth annotation and any `ijon` mention) plus the plateau
@@ -86,22 +87,25 @@ Model defaults to `deepseek/deepseek-v4-pro`; override with `--model` or
 
 ## Status
 
-The agent works end to end and autonomously derives the right annotation on
-several targets, covering **two of IJON's three roadblock classes** with three
-primitives:
+The agent autonomously **diagnoses all three of IJON's roadblock classes** and
+emits the right primitive; it **auto-solves two of them end to end**:
 
-- *Known relevant state values* — `IJON_SET` (maze) and `IJON_MAX` (maxclimb).
+- *Known relevant state values* — `IJON_SET` (maze) and `IJON_MAX` (maxclimb) —
+  diagnosed and auto-solved.
 - *Missing intermediate state* — `IJON_CMP` (checksum, two-gate, and a real
-  libpng frontier).
+  libpng frontier) — diagnosed and auto-solved.
+- *Known state changes* — `IJON_STATE` (protostate, a protocol state machine) —
+  **diagnosed correctly with the ground-truth annotation**, but not auto-solved:
+  a 1-D sequence lock can't be both AFL-hard and IJON-climbable (a robust
+  auto-solve needs maze-like structure; the mechanism is proven by the maze).
 
 Also working: the iterative keep/revert/retry loop, source-coverage evaluation
 (immune to IJON map inflation), and frontier localization (fuzz-introspector +
 llvm-cov) on libpng.
 
-Not yet covered: IJON's third class, *known state changes* (`IJON_STATE`, e.g. a
-protocol/message dispatcher), and the `IJON_STRDIST` primitive. A long libpng
-campaign to break that target's soft CRC roadblock empirically is also deferred.
-See `docs/architecture-design.md`.
+Deferred: a maze-structured class-2 target for a full `IJON_STATE` auto-solve,
+the `IJON_STRDIST` primitive, and a long libpng campaign. See
+`docs/architecture-design.md`.
 
 ## Acknowledgments & provenance
 

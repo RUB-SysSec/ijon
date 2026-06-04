@@ -73,6 +73,13 @@ PRIMITIVE SELECTION (critical):
 - Use IJON_MAX/IJON_MIN to push a value as far as possible (counters, depth,
   coordinates) when there is no single target value.
 - Use IJON_STRDIST for string / byte-buffer prefix comparisons.
+- Use IJON_STATE(n) to explore SEQUENCES or COMBINATIONS of operations — a
+  protocol/message dispatcher or a state machine where the goal depends on which
+  operations fired in what order, and per-operation handlers are already covered
+  so coverage is blind to protocol depth. Set n to the current state (or a
+  rolling log of processed operations); it folds that into the edge encoding so
+  the same handler code counts as new coverage in each state, letting the fuzzer
+  build up the required sequence. Place it where the state is updated, each step.
 
 PLACEMENT RULES (critical): the annotation must run on EVERY relevant
 execution and BEFORE/OUTSIDE the branch it is meant to help the fuzzer reach.

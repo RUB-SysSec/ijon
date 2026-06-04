@@ -290,17 +290,43 @@ We closed the value-maximization class two ways:
 
 Coverage of IJON's three *failure classes* (Section III-A of the paper), being
 careful not to conflate primitives with classes:
-- Class 1, **known relevant state values** — ✅ via `IJON_SET` (maze) and
-  `IJON_MAX` (maxclimb). Two primitives, one class.
-- Class 2, **known state changes** — ❌ not demonstrated (`IJON_STATE` on a
-  protocol/message dispatcher; the remaining gap).
-- Class 3, **missing intermediate state** — ✅ via `IJON_CMP` (checksum,
-  two-gate, libpng frontier).
+- Class 1, **known relevant state values** — ✅ agent diagnoses + auto-solves via
+  `IJON_SET` (maze) and `IJON_MAX` (maxclimb). Two primitives, one class.
+- Class 2, **known state changes** — ◑ agent **correctly diagnoses** it and
+  proposes the ground-truth `IJON_STATE(step)` on a synthetic protocol roadblock
+  (`workspace/protostate`, plain AFL plateaus 0 crashes / 16M+ execs). Full
+  AFL+`IJON_STATE` **auto-solve was not achieved** — see below.
+- Class 3, **missing intermediate state** — ✅ agent diagnoses + auto-solves via
+  `IJON_CMP` (checksum, two-gate, libpng frontier).
 
-So: 2 of 3 failure classes, 3 primitives (`IJON_SET`/`IJON_MAX`/`IJON_CMP`), each
-derived autonomously by the agent. `IJON_STATE` (class 2) and `IJON_STRDIST`
-remain. (An earlier summary loosely called this "all three classes" — that
-conflated the `IJON_MAX` primitive with a new class; corrected here.)
+So: the agent correctly **diagnoses all three classes** and emits the right
+primitive (`IJON_SET`/`IJON_MAX`/`IJON_CMP`/`IJON_STATE`); end-to-end **auto-solve
+is demonstrated for classes 1 and 3**. (An earlier summary loosely said "all
+three classes [solved]" — corrected.)
+
+#### Class 2 auto-solve — the 1-D wall (honest)
+
+On `protostate` (a protocol state machine: commands advance a step counter; a
+privileged op needs the full 14-command sequence), the agent nailed the
+diagnosis — failure class `known_state_changes`, *"edge coverage saturates...
+cannot assemble the 14-step expected command sequence"*, annotation
+`IJON_STATE(step)` after the state update — matching ground truth exactly. But
+the *target* could not be made to both (a) defeat plain AFL and (b) be
+auto-solved by AFL+`IJON_STATE`, empirically confirmed both ways:
+- **reset-on-wrong** (contiguous correct run required): plain AFL plateaus
+  (0/16M), but `IJON_STATE` can't climb — havoc corrupts the contiguous prefix
+  faster than it extends (same fragility as contiguous-maxclimb; stalled ~step 4).
+- **stay-on-wrong + window cap** (subsequence): `IJON_STATE` solves in <1 s, but
+  plain AFL also solves it — the required subsequence can occupy any 14 of the
+  window's positions (huge positional multiplicity).
+
+There is no 1-D sweet spot: plain-failure and IJON-climbability depend on
+per-step difficulty in opposite directions. A robust class-2 *auto-solve* needs
+maze-like 2-D/graph structure — which is exactly why the paper's class-2
+examples are real protocol state machines (libtpms), and why the maze
+(`test/ijon-maze.c`, already solved) is the standing proof that exposing state
+breaks a navigation/sequence roadblock. So for class 2 the **agent reasoning is
+proven**; a full synthetic auto-solve is deferred to a maze-structured target.
 
 ## 8. Findings & lessons (the interesting part)
 
