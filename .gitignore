@@ -13,6 +13,7 @@ workspace/*/build/
 workspace/*/fi_out/
 workspace/*/fi_proj/
 workspace/*/in_single/
+workspace/*/in_pngsuite/
 
 # generated source variants (clean/patched/per-iteration); keep canonical only
 workspace/*/src/*_clean.c
