@@ -357,6 +357,70 @@ state-change-log delivers a large real-target sequence-diversity gain (libpng).
 The maze (`test/ijon-maze.c`) remains the standing proof that exposing state also
 yields a full crash solve when the state space is navigable.
 
+## 7b. Real-world bug hunt on libpng — honest negative (revisit this)
+
+We tried to find a real/recent bug on libpng with ASAN. Recorded here in full so
+a future session can resume it; **the result was a clean negative, and it
+corrected a hypothesis of ours.**
+
+**CVE landscape (checked 2026-06).** A cluster of recent libpng CVEs sits in the
+**simplified read API** (`png_image_finish_read` / `png_image_begin_read_from_memory`)
+— which our harness already exercises:
+- CVE-2025-65018 — heap overflow, 16-bit interlaced → 8-bit output (fixed 1.6.51)
+- CVE-2025-66293 — OOB read, palette + partial transparency + gamma (`png_sRGB_base`, fixed 1.6.52)
+- CVE-2025-65019 — heap over-read, interlaced 16-bit, non-minimal stride (fixed 1.6.54)
+- CVE-2026-25646 — heap overflow, `png_set_quantize` (fixed 1.6.55)
+
+So the **1.6.44** tree we already built is *vulnerable* to several; **1.6.58**
+(latest) is patched.
+
+**What we ran (all ASAN, `afl-fuzz -m none -x png.dict`, 51 pngsuite seeds, 90 min each):**
+1. plain 1.6.44 → 0 crashes, plateaued ~23 % bitmap ("no new coverage for 1000 s")
+2. plain 1.6.58 (latest) → 0 crashes
+3. **IJON+ASAN 1.6.44** with `IJON_CMP(crc, png_ptr->crc)` in `png_crc_error`
+   (hypothesis: CRC gates the simplified API; a CRC gradient unlocks it) → 0 crashes
+
+**Hypothesis refuted by coverage data.** We replayed the plain vs IJON corpora
+through a clean CRC-off llvm-cov build (`targets/libpng_cov_off` from
+`build/cov/libpng`): real functions covered **plain 195 vs IJON 191** — *no gain*
+(IJON's +48 % corpus was `IJON_CMP` map noise, not new program paths). And:
+`png_image_finish_read` is reached by **both** (the valid pngsuite seeds already
+pass CRC into the simplified API — so CRC was **never** gating the entry). The
+actual CVE code is **deeper** and **uncovered by both**:
+`png_image_read_colormap` (palette), `png_do_compose`/`png_do_gamma` (the
+CVE-2025-66293 palette+gamma path), the 16-bit-interlaced→8-bit conversion. So
+`IJON_CMP`-on-CRC was the wrong tool: the barrier is **generating valid PNGs of
+specific formats** (IHDR colour-type/bit-depth/interlace + the right ancillary
+chunks + every chunk CRC correct) — a *structural/format* problem, not a
+CRC-gradient one.
+
+**Why this is fine, and where IJON does help.** This negative is consistent with
+the rest of the project: IJON-as-LLM-analyst clearly helps the demonstrated
+roadblock classes (synthetic SET/CMP/MAX/STATE, and the 53× libpng chunk-sequence
+diversity). It just doesn't crack *format-dependent* CVEs, which aren't really an
+LLM-analyst question.
+
+**To revisit — concrete next steps (in rough priority):**
+1. **Format-aware seeds:** seed with PNGs that already hit the vulnerable
+   configs (16-bit interlaced; palette + tRNS + gAMA), so the fuzzer starts
+   *inside* the relevant format space instead of having to synthesize it.
+2. **Structure-aware mutation:** an AFLSmart-style PNG grammar / custom mutator,
+   or a CRC-fixing post-processor so format mutations stay valid — this is the
+   real lever for these bugs.
+3. **An IJON angle that actually fits:** expose *format state* (e.g.
+   `IJON_STATE` on `(color_type, bit_depth, interlace_method)` after IHDR, or
+   `IJON_MAX` on bit depth) so the fuzzer is rewarded for exploring format
+   combinations — much closer to the true barrier than CRC was.
+4. **Much longer runs** (overnight / multi-core) — 90 min on one box is short
+   for a specific-format trigger.
+5. Re-confirm on 1.6.44 first (it's vulnerable); a hit there validates the
+   pipeline before attempting novel bugs on patched 1.6.58.
+
+Artifacts kept: `targets/libpng_asan_1644`, `targets/libpng_asan_158`,
+`targets/libpng_ijon_asan_1644`, `targets/libpng_cov_off`, `in_pngsuite/`,
+`build/libpng158/` (build trees gitignored; rebuild via the `*-build.sh` + the
+`IJON_CMP`-in-`png_crc_error` one-liner).
+
 ## 8. Findings & lessons (the interesting part)
 
 These are failures the agent/loop hit, and the general fixes they motivated —
