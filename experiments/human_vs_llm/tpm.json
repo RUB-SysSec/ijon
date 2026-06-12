@@ -1,0 +1,30 @@
+{
+  "case": "tpm",
+  "situation": "AFL plateaued fuzzing the IBM TPM 2.0 command server. Inputs are sequences of TPM commands. Coverage stalls: single commands are reached, but deep states need specific ORDERED command sequences (the command-to-command transitions) that blind byte mutation cannot stumble into.",
+  "ground_truth": {
+    "primitive": "ijon_push_state",
+    "state": "the running command-index sequence (command_state = (command_state<<8) | (command->index & 0xff))",
+    "placement": "in CommandDispatcher, success branch after a command executes (Exit: / TPM_RC_SUCCESS)",
+    "verbatim": "command_state=(command_state<<8)|(command->index&0xff); ijon_push_state(command_state);   // tpm_fuzzing/src/CommandDispatcher.c:393-396"
+  },
+  "scaffolding_removed_for_blind_test": [
+    "uint32_t command_state=0;",
+    "\t\t\tcommand_state=(command_state<<8) | (command->index&0xff);",
+    "\t\t\tprintf(\"\\tcommand_state: %x\\n\", command_state);"
+  ],
+  "clean_source_lines": 394,
+  "llm_proposal": {
+    "failure_class": "known_relevant_state_values",
+    "why_stuck": "The fuzzer likely fails to parse any handle in ParseHandleBuffer because it cannot produce a valid handle value. All inputs take the same error return path, so edge coverage is flat. The number of successfully parsed handles is not reflected in branch coverage.",
+    "relevant_state": "command->handleNum (count of handles parsed so far, incremented before failure check)",
+    "macro": "IJON_MAX",
+    "annotation_code": "IJON_MAX(command->handleNum);",
+    "after_substring": "command->handleNum += 1;",
+    "placement_reason": "This is inside the handle parsing loop, after the counter is incremented but before the error check that returns. It fires on every iteration, rewarding inputs that parse more handles before failing, providing a gradient to eventually parse all handles and reach the command action."
+  },
+  "model": "deepseek-v4-pro",
+  "tokens": {
+    "prompt": 5791,
+    "completion": 7253
+  }
+}

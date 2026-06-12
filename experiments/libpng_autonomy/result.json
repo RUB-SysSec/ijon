@@ -1,0 +1,47 @@
+{
+  "model": "deepseek/deepseek-v4-pro",
+  "baseline_sequences": 51,
+  "keep_threshold": 255,
+  "window_s": 90.0,
+  "iterations": [
+    {
+      "iter": 1,
+      "code": "IJON_CMP(chunk_name, png_iCCP);",
+      "class": "missing_intermediate_state",
+      "relevant_state": "png_ptr->chunk_name",
+      "seqs": 196,
+      "kept": false
+    },
+    {
+      "iter": 2,
+      "code": "IJON_STATE(png_ptr->mode);",
+      "class": "known_state_changes",
+      "relevant_state": "The accumulated flags in png_ptr->mode which reflect which chunk types have been processed so far.",
+      "seqs": 102,
+      "kept": false
+    },
+    {
+      "iter": 3,
+      "code": "IJON_CMP(crc, png_ptr->crc);",
+      "class": "missing_intermediate_state",
+      "relevant_state": "crc (input CRC) and png_ptr->crc (computed CRC)",
+      "seqs": 63,
+      "kept": false
+    },
+    {
+      "iter": 4,
+      "code": "IJON_STATE(ijon_hashint(png_ptr->mode, chunk_name));",
+      "class": "known_state_changes",
+      "relevant_state": "png_ptr->mode (cumulative chunk flags) and chunk_name (current chunk type) combined to represent the processing state at each step of the chunk loop.",
+      "seqs": 1575,
+      "kept": true
+    }
+  ],
+  "found": {
+    "iter": 4,
+    "code": "IJON_STATE(ijon_hashint(png_ptr->mode, chunk_name));",
+    "seqs": 1575,
+    "relevant_state": "png_ptr->mode (cumulative chunk flags) and chunk_name (current chunk type) combined to represent the processing state at each step of the chunk loop.",
+    "fold_over_baseline": 30.9
+  }
+}

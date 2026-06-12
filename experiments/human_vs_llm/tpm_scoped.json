@@ -1,0 +1,31 @@
+{
+  "case": "tpm_scoped",
+  "situation": "AFL plateaued fuzzing the IBM TPM 2.0 command server. Inputs are sequences of TPM commands. Coverage stalls: single commands are reached, but deep states need specific ORDERED command sequences (the command-to-command transitions) that blind byte mutation cannot stumble into. [FAIR-SCOPE: localizer supplies call structure]",
+  "fair_scope_localization": "CALL STRUCTURE (recovered by the localizer; structural facts only, no annotation hints):\n\nThe fuzzed program is a TPM 2.0 command server. Its main loop reads and executes\ncommands one after another from the input stream\n(TcpServerPosix.c: `do { read one command; RunCommand() -> ExecuteCommand(); } while(continueServing);`),\nso a SINGLE fuzz input drives a sequence of commands, executed in order.\n\nExecuteCommand() (ExecCommand.c) is the per-command entry point. Per its own\nsource comment, for EACH command it:\n  a) parses the command header from the input buffer;\n  b) ParseHandleBuffer() parses the handle area;\n  c) validates that each handle references a loaded entity;\n  d) ParseSessionBuffer() unmarshals the sessions and checks authorizations;\n  e) CommandDispatcher() (the function shown below) unmarshals the parameters\n     and calls the routine that performs the command action;\n  f) on any error in the steps above, builds an error response and returns.\n\n`command->index` is the dispatched command's type identifier.\n",
+  "ground_truth": {
+    "primitive": "ijon_push_state",
+    "state": "the running command-index sequence (command_state = (command_state<<8) | (command->index & 0xff))",
+    "placement": "in CommandDispatcher, success branch after a command executes (Exit: / TPM_RC_SUCCESS)",
+    "verbatim": "command_state=(command_state<<8)|(command->index&0xff); ijon_push_state(command_state);   // tpm_fuzzing/src/CommandDispatcher.c:393-396"
+  },
+  "scaffolding_removed_for_blind_test": [
+    "uint32_t command_state=0;",
+    "\t\t\tcommand_state=(command_state<<8) | (command->index&0xff);",
+    "\t\t\tprintf(\"\\tcommand_state: %x\\n\", command_state);"
+  ],
+  "clean_source_lines": 394,
+  "llm_proposal": {
+    "failure_class": "missing_intermediate_state",
+    "why_stuck": "The fuzzer cannot progress past the parameter unmarshaling loop because any failure returns the same error code, producing no new edge coverage regardless of how many parameters were successfully unmarshaled. Without feedback on partial successes, mutation cannot build up the correct sequence of parameter fields.",
+    "relevant_state": "pNum, the counter of parameters processed in the unmarshaling loop",
+    "macro": "IJON_MAX",
+    "annotation_code": "IJON_MAX(pNum);",
+    "after_substring": "pNum++;",
+    "placement_reason": "Inside the parameter unmarshaling loop, after pNum is incremented so that each iteration's progress count is exposed, providing a gradient toward successfully unmarshaling more parameters."
+  },
+  "model": "deepseek-v4-pro",
+  "tokens": {
+    "prompt": 6070,
+    "completion": 5643
+  }
+}

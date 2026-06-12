@@ -1,0 +1,28 @@
+{
+  "case": "maze",
+  "situation": "AFL plateaued on a maze game: input bytes are U/D/L/R moves; edge coverage flat because every move hits the same handful of edges regardless of WHERE in the maze the player is.",
+  "ground_truth": {
+    "primitive": "ijon_push_state / IJON_SET (transition)",
+    "state": "player coordinates (x, y)",
+    "placement": "inside the per-move loop, right after the position update",
+    "verbatim": "transition(hashint(x,y));   // maze/small.c:53"
+  },
+  "scaffolding_removed_for_blind_test": [
+    "    //transition(hashint(x,y));"
+  ],
+  "clean_source_lines": 92,
+  "llm_proposal": {
+    "failure_class": "known_relevant_state_values",
+    "why_stuck": "The fuzzer cannot reach the goal because edge coverage is blind to the player's maze position. All valid move sequences execute the same basic blocks (switch cases, wall check) regardless of how close they get to the goal, so the fuzzer receives no feedback to guide it toward the target cell '#'.",
+    "relevant_state": "the player's (x, y) coordinates",
+    "macro": "IJON_SET",
+    "annotation_code": "IJON_SET(ijon_hashint(x, y));",
+    "after_substring": "draw ();          //draw it",
+    "placement_reason": "Inserted after draw() and before i++ inside the main loop, where (x,y) reflects the final position after each move (and wall collision resolution). The variables are in scope and updated each iteration, providing per-step feedback on the current position."
+  },
+  "model": "deepseek-v4-pro",
+  "tokens": {
+    "prompt": 2091,
+    "completion": 4350
+  }
+}

@@ -1,0 +1,355 @@
+{
+  "model": "deepseek/deepseek-v4-pro",
+  "autonomous_proposal": {
+    "failure_class": "known_relevant_state_values",
+    "relevant_state": "png_ptr->transformations & PNG_COMPOSE (a single bitflag indicating whether composition is enabled)",
+    "macro": "IJON_SET",
+    "annotation_code": "IJON_SET((png_ptr->transformations & PNG_COMPOSE) != 0);",
+    "after_substring": "png_debug(1, \"in png_do_read_transformations\");",
+    "why_stuck": "The fuzzer reaches png_do_read_transformations repeatedly (7669x) but never calls png_do_compose. The branch if ((png_ptr->transformations & PNG_COMPOSE) != 0) is taken only when the input PNG sets the compose transform flag, but edge coverage does not distinguish paths that set this flag\u2014the same basic blocks are covered regardless. Without feedback on this flag, the fuzzer cannot learn to craft inputs that trigger composition.",
+    "looks_like_sequence_state": false
+  },
+  "budget_s": 360.0,
+  "trajectory": {
+    "plain": [
+      {
+        "t": 20.0,
+        "files": 666,
+        "parsed": 663,
+        "sequences": 43,
+        "trigrams": 39,
+        "types": 29,
+        "edges_found": 637
+      },
+      {
+        "t": 40.1,
+        "files": 702,
+        "parsed": 699,
+        "sequences": 43,
+        "trigrams": 38,
+        "types": 28,
+        "edges_found": 637
+      },
+      {
+        "t": 60.1,
+        "files": 752,
+        "parsed": 749,
+        "sequences": 47,
+        "trigrams": 45,
+        "types": 30,
+        "edges_found": 637
+      },
+      {
+        "t": 80.1,
+        "files": 766,
+        "parsed": 763,
+        "sequences": 48,
+        "trigrams": 47,
+        "types": 30,
+        "edges_found": 1114
+      },
+      {
+        "t": 100.2,
+        "files": 788,
+        "parsed": 785,
+        "sequences": 50,
+        "trigrams": 48,
+        "types": 31,
+        "edges_found": 1114
+      },
+      {
+        "t": 120.2,
+        "files": 792,
+        "parsed": 789,
+        "sequences": 51,
+        "trigrams": 48,
+        "types": 31,
+        "edges_found": 1114
+      },
+      {
+        "t": 140.2,
+        "files": 797,
+        "parsed": 794,
+        "sequences": 52,
+        "trigrams": 48,
+        "types": 31,
+        "edges_found": 1119
+      },
+      {
+        "t": 160.3,
+        "files": 801,
+        "parsed": 798,
+        "sequences": 52,
+        "trigrams": 48,
+        "types": 31,
+        "edges_found": 1119
+      },
+      {
+        "t": 180.3,
+        "files": 804,
+        "parsed": 801,
+        "sequences": 52,
+        "trigrams": 48,
+        "types": 31,
+        "edges_found": 1119
+      },
+      {
+        "t": 200.4,
+        "files": 806,
+        "parsed": 803,
+        "sequences": 52,
+        "trigrams": 48,
+        "types": 31,
+        "edges_found": 1119
+      },
+      {
+        "t": 220.4,
+        "files": 813,
+        "parsed": 810,
+        "sequences": 52,
+        "trigrams": 48,
+        "types": 31,
+        "edges_found": 1119
+      },
+      {
+        "t": 240.4,
+        "files": 816,
+        "parsed": 813,
+        "sequences": 52,
+        "trigrams": 48,
+        "types": 31,
+        "edges_found": 1119
+      },
+      {
+        "t": 260.5,
+        "files": 820,
+        "parsed": 817,
+        "sequences": 52,
+        "trigrams": 48,
+        "types": 31,
+        "edges_found": 1119
+      },
+      {
+        "t": 280.5,
+        "files": 824,
+        "parsed": 821,
+        "sequences": 52,
+        "trigrams": 48,
+        "types": 31,
+        "edges_found": 1119
+      },
+      {
+        "t": 300.5,
+        "files": 833,
+        "parsed": 830,
+        "sequences": 55,
+        "trigrams": 52,
+        "types": 31,
+        "edges_found": 1119
+      },
+      {
+        "t": 320.6,
+        "files": 840,
+        "parsed": 837,
+        "sequences": 60,
+        "trigrams": 63,
+        "types": 33,
+        "edges_found": 1121
+      },
+      {
+        "t": 340.6,
+        "files": 844,
+        "parsed": 841,
+        "sequences": 63,
+        "trigrams": 68,
+        "types": 33,
+        "edges_found": 1121
+      },
+      {
+        "t": 360.7,
+        "files": 848,
+        "parsed": 845,
+        "sequences": 65,
+        "trigrams": 69,
+        "types": 33,
+        "edges_found": 1121
+      }
+    ],
+    "ijon": [
+      {
+        "t": 20.1,
+        "files": 2743,
+        "parsed": 2740,
+        "sequences": 2441,
+        "trigrams": 1709,
+        "types": 1059,
+        "edges_found": 640
+      },
+      {
+        "t": 40.3,
+        "files": 3003,
+        "parsed": 3000,
+        "sequences": 2639,
+        "trigrams": 1765,
+        "types": 1110,
+        "edges_found": 640
+      },
+      {
+        "t": 60.4,
+        "files": 3142,
+        "parsed": 3139,
+        "sequences": 2669,
+        "trigrams": 1766,
+        "types": 1114,
+        "edges_found": 3765
+      },
+      {
+        "t": 80.4,
+        "files": 3184,
+        "parsed": 3181,
+        "sequences": 2671,
+        "trigrams": 1757,
+        "types": 1116,
+        "edges_found": 3765
+      },
+      {
+        "t": 100.5,
+        "files": 3204,
+        "parsed": 3201,
+        "sequences": 2670,
+        "trigrams": 1753,
+        "types": 1114,
+        "edges_found": 3765
+      },
+      {
+        "t": 120.6,
+        "files": 3231,
+        "parsed": 3228,
+        "sequences": 2671,
+        "trigrams": 1752,
+        "types": 1114,
+        "edges_found": 3778
+      },
+      {
+        "t": 140.7,
+        "files": 3237,
+        "parsed": 3234,
+        "sequences": 2671,
+        "trigrams": 1752,
+        "types": 1114,
+        "edges_found": 3778
+      },
+      {
+        "t": 160.8,
+        "files": 3248,
+        "parsed": 3245,
+        "sequences": 2673,
+        "trigrams": 1753,
+        "types": 1114,
+        "edges_found": 3778
+      },
+      {
+        "t": 180.9,
+        "files": 3254,
+        "parsed": 3251,
+        "sequences": 2674,
+        "trigrams": 1753,
+        "types": 1114,
+        "edges_found": 3782
+      },
+      {
+        "t": 201.0,
+        "files": 3277,
+        "parsed": 3274,
+        "sequences": 2674,
+        "trigrams": 1753,
+        "types": 1114,
+        "edges_found": 3782
+      },
+      {
+        "t": 221.1,
+        "files": 3282,
+        "parsed": 3279,
+        "sequences": 2674,
+        "trigrams": 1753,
+        "types": 1114,
+        "edges_found": 3782
+      },
+      {
+        "t": 241.2,
+        "files": 3288,
+        "parsed": 3285,
+        "sequences": 2674,
+        "trigrams": 1753,
+        "types": 1114,
+        "edges_found": 3795
+      },
+      {
+        "t": 261.3,
+        "files": 3291,
+        "parsed": 3288,
+        "sequences": 2674,
+        "trigrams": 1753,
+        "types": 1114,
+        "edges_found": 3795
+      },
+      {
+        "t": 281.4,
+        "files": 3291,
+        "parsed": 3288,
+        "sequences": 2674,
+        "trigrams": 1753,
+        "types": 1114,
+        "edges_found": 3795
+      },
+      {
+        "t": 301.5,
+        "files": 3294,
+        "parsed": 3291,
+        "sequences": 2674,
+        "trigrams": 1753,
+        "types": 1114,
+        "edges_found": 3796
+      },
+      {
+        "t": 321.6,
+        "files": 3318,
+        "parsed": 3315,
+        "sequences": 2678,
+        "trigrams": 1759,
+        "types": 1115,
+        "edges_found": 3796
+      },
+      {
+        "t": 341.7,
+        "files": 3324,
+        "parsed": 3321,
+        "sequences": 2679,
+        "trigrams": 1760,
+        "types": 1115,
+        "edges_found": 3796
+      },
+      {
+        "t": 361.8,
+        "files": 3325,
+        "parsed": 3322,
+        "sequences": 2679,
+        "trigrams": 1760,
+        "types": 1115,
+        "edges_found": 3822
+      }
+    ]
+  },
+  "final": {
+    "plain": {
+      "sequences": 65,
+      "trigrams": 69,
+      "functions": 124
+    },
+    "ijon": {
+      "sequences": 2679,
+      "trigrams": 1760,
+      "functions": 125
+    }
+  }
+}

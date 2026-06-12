@@ -204,7 +204,12 @@ def parse_proposal(obj: dict, llm: LLMResult) -> AnnotationProposal:
 def propose_annotation(model: AnalystModel, source: str, snap: Snapshot,
                        source_name: str = "target.c",
                        history: list = None,
-                       localization: str = None) -> AnnotationProposal:
+                       localization: str = None,
+                       max_tokens: int = 8192) -> AnnotationProposal:
+    # v4-pro is a reasoning model: its chain-of-thought (reasoning_content) is
+    # billed as completion tokens, so on a big multi-function source the reasoning
+    # alone can approach 4096 and truncate the JSON answer -> empty/partial object.
+    # 8192 leaves headroom; cheap targets simply stop early and cost less.
     user = build_user_prompt(source, snap, source_name, history, localization)
-    res = model.complete_json(_SYSTEM, user)
+    res = model.complete_json(_SYSTEM, user, max_tokens=max_tokens)
     return parse_proposal(res.obj, res)
