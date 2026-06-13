@@ -1,0 +1,24 @@
+{
+  "ground_truth": {
+    "primitive": "ijon_max (IJON_MAX)",
+    "state": "world_pos (horizontal level progress = screen*255+pos), bucketed by pos_y/16 (vertical tile row)",
+    "placement": "in mainLoop, each frame after world_pos/pos_y are computed",
+    "verbatim": "ijon_max(pos_y/16, world_pos);   // Main.cpp (#ifdef _USE_IJON)"
+  },
+  "llm_proposal": {
+    "failure_class": "known_relevant_state_values",
+    "why_stuck": "The fuzzer cannot produce inputs that progress world_pos beyond 44, because edge coverage treats all world_pos values <44 identically and does not reward incremental increases. The comparison 'world_pos > 44' is already covered, but the fuzzer lacks a gradient to reach higher values.",
+    "relevant_state": "world_pos (horizontal progress computed as screen*255+pos)",
+    "macro": "IJON_MAX",
+    "annotation_code": "IJON_MAX(world_pos);",
+    "after_substring": "uint64_t world_pos = screen*255 + pos;",
+    "placement_reason": "This line is inside the main loop, after world_pos is updated each frame, so the annotation fires every iteration and rewards maximizing the distance traveled."
+  },
+  "match": {
+    "used_ijon_max": true,
+    "on_progress_state": true,
+    "reproduces_human": true
+  },
+  "model": "deepseek-v4-pro",
+  "clean_loop_lines": 185
+}

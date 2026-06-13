@@ -1,0 +1,45 @@
+--- /media/sanjay/f574986f-8197-4e72-a69d-87ddf200a6a9/sanjay/research/tii/tii24/repos/dev-claude/ijon-data-ref/SuperMarioBros-C/source/Main.cpp	2026-06-12 09:53:45.433661643 +0530
++++ build/src/Main.cpp	2026-06-13 15:43:35.519883090 +0530
+@@ -20,6 +20,12 @@
+ static SMBEngine* smbEngine = nullptr;
+ static uint32_t renderBuffer[RENDER_WIDTH * RENDER_HEIGHT];
+ 
++// Headless frame capture: render each frame to renderBuffer and dump raw ARGB
++// to frames.raw (for the placeholder-CHR video). Inert unless `capture` arg.
++static bool g_capture = false;
++static FILE* g_frames = NULL;
++static FILE* g_wp = NULL;     // per-frame world_pos sidecar (for the overlay)
++
+ 
+ static int level = 0;
+ 
+@@ -246,6 +252,17 @@
+ 					controller1.setButtonState(BUTTON_RIGHT,	enter && sleep && 1);
+ 					controller1.setButtonState(BUTTON_START, enter);
+ 					engine.update();
++					if(g_capture && g_frames){
++						engine.render(renderBuffer);
++						fwrite(renderBuffer, sizeof(uint32_t),
++						       RENDER_WIDTH * RENDER_HEIGHT, g_frames);
++						if(g_wp){
++							unsigned long long wp =
++							    (unsigned long long)engine.readData(0x6d) * 255ull
++							    + (unsigned long long)engine.readData(0x86);
++							fprintf(g_wp, "%llu\n", wp);
++						}
++					}
+ 				}
+ 
+ 
+@@ -373,6 +390,11 @@
+ 		if(argc > 2 && strcmp(argv[2],"video")==0){
+ 			video = true;
+ 		}
++		if(argc > 2 && strcmp(argv[2],"capture")==0){
++			g_capture = true;
++			g_frames = fopen("frames.raw", "wb");   // raw ARGB, 256x240 per frame
++			g_wp = fopen("frames_wp.txt", "w");     // world_pos per frame
++		}
+ 		if(argc > 2 && strcmp(argv[2],"trace")==0){
+ 			trace = true;
+ 		}

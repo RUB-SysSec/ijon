@@ -1,0 +1,315 @@
+{
+  "budget_s": 900.0,
+  "annotation": "IJON_MAX(world_pos)  (agent, Part A)",
+  "trajectory": {
+    "plain": [
+      {
+        "t": 33.2,
+        "queue": 135,
+        "max_world_pos": 593
+      },
+      {
+        "t": 65.4,
+        "queue": 225,
+        "max_world_pos": 593
+      },
+      {
+        "t": 96.4,
+        "queue": 271,
+        "max_world_pos": 593
+      },
+      {
+        "t": 127.2,
+        "queue": 299,
+        "max_world_pos": 593
+      },
+      {
+        "t": 157.6,
+        "queue": 316,
+        "max_world_pos": 593
+      },
+      {
+        "t": 187.9,
+        "queue": 329,
+        "max_world_pos": 593
+      },
+      {
+        "t": 218.4,
+        "queue": 343,
+        "max_world_pos": 720
+      },
+      {
+        "t": 248.5,
+        "queue": 350,
+        "max_world_pos": 720
+      },
+      {
+        "t": 278.8,
+        "queue": 358,
+        "max_world_pos": 720
+      },
+      {
+        "t": 308.9,
+        "queue": 361,
+        "max_world_pos": 721
+      },
+      {
+        "t": 339.1,
+        "queue": 366,
+        "max_world_pos": 721
+      },
+      {
+        "t": 369.2,
+        "queue": 370,
+        "max_world_pos": 721
+      },
+      {
+        "t": 399.4,
+        "queue": 374,
+        "max_world_pos": 721
+      },
+      {
+        "t": 429.5,
+        "queue": 378,
+        "max_world_pos": 721
+      },
+      {
+        "t": 459.7,
+        "queue": 382,
+        "max_world_pos": 721
+      },
+      {
+        "t": 489.8,
+        "queue": 384,
+        "max_world_pos": 721
+      },
+      {
+        "t": 520.0,
+        "queue": 389,
+        "max_world_pos": 721
+      },
+      {
+        "t": 550.0,
+        "queue": 391,
+        "max_world_pos": 721
+      },
+      {
+        "t": 580.5,
+        "queue": 402,
+        "max_world_pos": 1429
+      },
+      {
+        "t": 611.1,
+        "queue": 412,
+        "max_world_pos": 1509
+      },
+      {
+        "t": 641.3,
+        "queue": 417,
+        "max_world_pos": 1509
+      },
+      {
+        "t": 671.7,
+        "queue": 424,
+        "max_world_pos": 1509
+      },
+      {
+        "t": 702.0,
+        "queue": 432,
+        "max_world_pos": 1509
+      },
+      {
+        "t": 732.2,
+        "queue": 434,
+        "max_world_pos": 1509
+      },
+      {
+        "t": 762.3,
+        "queue": 436,
+        "max_world_pos": 1509
+      },
+      {
+        "t": 793.2,
+        "queue": 452,
+        "max_world_pos": 1517
+      },
+      {
+        "t": 823.7,
+        "queue": 461,
+        "max_world_pos": 1517
+      },
+      {
+        "t": 854.1,
+        "queue": 468,
+        "max_world_pos": 1517
+      },
+      {
+        "t": 884.5,
+        "queue": 475,
+        "max_world_pos": 1517
+      },
+      {
+        "t": 914.8,
+        "queue": 479,
+        "max_world_pos": 1517
+      }
+    ],
+    "ijon": [
+      {
+        "t": 33.1,
+        "queue": 128,
+        "max_world_pos": 435
+      },
+      {
+        "t": 64.7,
+        "queue": 195,
+        "max_world_pos": 435
+      },
+      {
+        "t": 95.7,
+        "queue": 235,
+        "max_world_pos": 592
+      },
+      {
+        "t": 126.2,
+        "queue": 257,
+        "max_world_pos": 592
+      },
+      {
+        "t": 156.6,
+        "queue": 276,
+        "max_world_pos": 592
+      },
+      {
+        "t": 187.0,
+        "queue": 289,
+        "max_world_pos": 592
+      },
+      {
+        "t": 217.3,
+        "queue": 303,
+        "max_world_pos": 592
+      },
+      {
+        "t": 247.5,
+        "queue": 310,
+        "max_world_pos": 592
+      },
+      {
+        "t": 277.7,
+        "queue": 316,
+        "max_world_pos": 592
+      },
+      {
+        "t": 307.8,
+        "queue": 319,
+        "max_world_pos": 592
+      },
+      {
+        "t": 337.9,
+        "queue": 323,
+        "max_world_pos": 592
+      },
+      {
+        "t": 368.2,
+        "queue": 332,
+        "max_world_pos": 592
+      },
+      {
+        "t": 398.5,
+        "queue": 340,
+        "max_world_pos": 592
+      },
+      {
+        "t": 428.6,
+        "queue": 344,
+        "max_world_pos": 720
+      },
+      {
+        "t": 458.7,
+        "queue": 347,
+        "max_world_pos": 720
+      },
+      {
+        "t": 488.9,
+        "queue": 353,
+        "max_world_pos": 720
+      },
+      {
+        "t": 519.0,
+        "queue": 355,
+        "max_world_pos": 720
+      },
+      {
+        "t": 549.3,
+        "queue": 367,
+        "max_world_pos": 720
+      },
+      {
+        "t": 579.7,
+        "queue": 379,
+        "max_world_pos": 720
+      },
+      {
+        "t": 610.1,
+        "queue": 390,
+        "max_world_pos": 720
+      },
+      {
+        "t": 640.3,
+        "queue": 398,
+        "max_world_pos": 720
+      },
+      {
+        "t": 670.6,
+        "queue": 404,
+        "max_world_pos": 720
+      },
+      {
+        "t": 701.2,
+        "queue": 419,
+        "max_world_pos": 1424
+      },
+      {
+        "t": 731.6,
+        "queue": 428,
+        "max_world_pos": 1424
+      },
+      {
+        "t": 761.9,
+        "queue": 435,
+        "max_world_pos": 1424
+      },
+      {
+        "t": 792.2,
+        "queue": 440,
+        "max_world_pos": 1424
+      },
+      {
+        "t": 822.3,
+        "queue": 441,
+        "max_world_pos": 1424
+      },
+      {
+        "t": 852.5,
+        "queue": 445,
+        "max_world_pos": 1424
+      },
+      {
+        "t": 883.6,
+        "queue": 463,
+        "max_world_pos": 1514
+      },
+      {
+        "t": 914.4,
+        "queue": 476,
+        "max_world_pos": 1514
+      }
+    ]
+  },
+  "final": {
+    "plain_max_world_pos": 1517,
+    "ijon_max_world_pos": 1514,
+    "fold": 1.0
+  }
+}

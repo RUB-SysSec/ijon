@@ -1,0 +1,156 @@
+{
+  "annotation": "IJON_MAX(pos_y/16, world_pos) [human, bucketed]",
+  "trajectory": [
+    {
+      "t": 33.5,
+      "queue": 145,
+      "max_world_pos": 592
+    },
+    {
+      "t": 65.9,
+      "queue": 244,
+      "max_world_pos": 593
+    },
+    {
+      "t": 97.3,
+      "queue": 301,
+      "max_world_pos": 754
+    },
+    {
+      "t": 128.1,
+      "queue": 331,
+      "max_world_pos": 754
+    },
+    {
+      "t": 158.5,
+      "queue": 344,
+      "max_world_pos": 895
+    },
+    {
+      "t": 188.9,
+      "queue": 360,
+      "max_world_pos": 895
+    },
+    {
+      "t": 219.2,
+      "queue": 368,
+      "max_world_pos": 895
+    },
+    {
+      "t": 249.3,
+      "queue": 372,
+      "max_world_pos": 895
+    },
+    {
+      "t": 279.6,
+      "queue": 379,
+      "max_world_pos": 895
+    },
+    {
+      "t": 309.8,
+      "queue": 385,
+      "max_world_pos": 896
+    },
+    {
+      "t": 339.9,
+      "queue": 387,
+      "max_world_pos": 896
+    },
+    {
+      "t": 370.0,
+      "queue": 390,
+      "max_world_pos": 896
+    },
+    {
+      "t": 400.1,
+      "queue": 392,
+      "max_world_pos": 896
+    },
+    {
+      "t": 430.3,
+      "queue": 397,
+      "max_world_pos": 896
+    },
+    {
+      "t": 460.5,
+      "queue": 402,
+      "max_world_pos": 896
+    },
+    {
+      "t": 490.6,
+      "queue": 404,
+      "max_world_pos": 896
+    },
+    {
+      "t": 520.6,
+      "queue": 405,
+      "max_world_pos": 896
+    },
+    {
+      "t": 550.7,
+      "queue": 407,
+      "max_world_pos": 896
+    },
+    {
+      "t": 581.7,
+      "queue": 429,
+      "max_world_pos": 1118
+    },
+    {
+      "t": 612.2,
+      "queue": 441,
+      "max_world_pos": 1119
+    },
+    {
+      "t": 642.5,
+      "queue": 447,
+      "max_world_pos": 1119
+    },
+    {
+      "t": 672.7,
+      "queue": 452,
+      "max_world_pos": 1119
+    },
+    {
+      "t": 703.0,
+      "queue": 456,
+      "max_world_pos": 1124
+    },
+    {
+      "t": 733.0,
+      "queue": 457,
+      "max_world_pos": 1124
+    },
+    {
+      "t": 763.8,
+      "queue": 469,
+      "max_world_pos": 1515
+    },
+    {
+      "t": 794.4,
+      "queue": 479,
+      "max_world_pos": 1517
+    },
+    {
+      "t": 824.8,
+      "queue": 485,
+      "max_world_pos": 1517
+    },
+    {
+      "t": 854.9,
+      "queue": 486,
+      "max_world_pos": 1517
+    },
+    {
+      "t": 885.1,
+      "queue": 489,
+      "max_world_pos": 1517
+    },
+    {
+      "t": 915.4,
+      "queue": 494,
+      "max_world_pos": 1517
+    }
+  ],
+  "final_max_world_pos": 1517
+}
