@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IJON-LLM — Teaching a language model to usher fuzzers through the maze</title>
+<title>IJON Reloaded — Teaching a language model to usher fuzzers through the maze</title>
 <meta name="description" content="An LLM agent that does the human IJON analyst's job: it reads fuzzer telemetry, diagnoses why AFL is stuck, and writes the one-line annotation that reshapes the feedback function — autonomously." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,6 +73,8 @@ a:hover{border-color:var(--lime); background:rgba(194,242,74,.08)}
 h1.title{font-family:'Chakra Petch'; font-weight:700; font-size:clamp(34px,6.4vw,68px);
   line-height:1.02; letter-spacing:-.5px; margin-bottom:22px}
 h1.title .hl{color:var(--lime); text-shadow:var(--glow)}
+.subtitle{font-family:'Chakra Petch'; font-weight:600; font-size:clamp(21px,3.1vw,32px); line-height:1.12; letter-spacing:-.2px; color:var(--ink); max-width:780px; margin:6px 0 18px}
+.subtitle .hl{color:var(--lime)}
 .lede{font-size:clamp(16px,2.1vw,19px); color:var(--dim); max-width:760px; line-height:1.75}
 .lede b{color:var(--ink); font-weight:500}
 .byline{font-family:'Chakra Petch'; font-weight:600; font-size:15px; color:var(--faint); letter-spacing:.6px; margin:-6px 0 24px}
@@ -202,7 +204,8 @@ footer h2{font-size:24px; margin-bottom:14px}
 <!-- HERO -->
 <header class="hero"><div class="wrap">
   <span class="kick rv">▸ FUZZING · IJON · AUTONOMOUS ANALYST</span>
-  <h1 class="title rv">Teaching a language model to<br><span class="hl">usher fuzzers through the maze.</span></h1>
+  <h1 class="title rv">IJON <span class="hl">Reloaded</span></h1>
+  <p class="subtitle rv">Teaching a language model to usher fuzzers through <span class="hl">the&nbsp;maze.</span></p>
   <div class="byline rv">by <b>Sanjay Rawat</b></div>
   <p class="lede rv">Coverage-guided fuzzers go blind when interesting behaviour lives in <b>data values</b>, not in which edges run. <b>IJON</b> fixes that with a one-line human annotation that reshapes the feedback function. We replace that human with an <b>autonomous LLM agent</b>: it reads the fuzzer's telemetry, diagnoses <i>why</i> AFL is stuck, and writes the annotation — across mazes, Super&nbsp;Mario, libpng and a real vTPM.</p>
   <div class="heroactions rv">
