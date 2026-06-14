@@ -75,6 +75,9 @@ h1.title{font-family:'Chakra Petch'; font-weight:700; font-size:clamp(34px,6.4vw
 h1.title .hl{color:var(--lime); text-shadow:var(--glow)}
 .lede{font-size:clamp(16px,2.1vw,19px); color:var(--dim); max-width:760px; line-height:1.75}
 .lede b{color:var(--ink); font-weight:500}
+.byline{font-family:'Chakra Petch'; font-weight:600; font-size:15px; color:var(--faint); letter-spacing:.6px; margin:-6px 0 24px}
+.byline b{color:var(--lime); font-weight:600}
+.byline::before{content:"▸ "; color:var(--lime)}
 .heroactions{display:flex; gap:14px; margin-top:30px; flex-wrap:wrap}
 .btn{font-family:'Chakra Petch'; font-weight:600; font-size:14px; letter-spacing:.5px;
   padding:13px 20px; border-radius:4px; border:1px solid var(--line); color:var(--ink);
@@ -180,6 +183,9 @@ footer h2{font-size:24px; margin-bottom:14px}
 .foot-grid a{display:block; color:var(--faint); border:0; margin-bottom:5px}
 .foot-grid a:hover{color:var(--lime); background:none}
 .disc{margin-top:34px; padding-top:20px; border-top:1px solid var(--line); font-size:12px; color:var(--faint); line-height:1.7}
+.ack{margin-top:30px; font-size:13.5px; color:var(--dim)}
+.ack .lbl{font-family:'Press Start 2P'; font-size:9px; color:var(--lime); letter-spacing:1px; display:block; margin-bottom:9px}
+.ack b{color:var(--ink); font-weight:600}
 </style>
 </head>
 <body>
@@ -197,6 +203,7 @@ footer h2{font-size:24px; margin-bottom:14px}
 <header class="hero"><div class="wrap">
   <span class="kick rv">▸ FUZZING · IJON · AUTONOMOUS ANALYST</span>
   <h1 class="title rv">Teaching a language model to<br><span class="hl">usher fuzzers through the maze.</span></h1>
+  <div class="byline rv">by <b>Sanjay Rawat</b></div>
   <p class="lede rv">Coverage-guided fuzzers go blind when interesting behaviour lives in <b>data values</b>, not in which edges run. <b>IJON</b> fixes that with a one-line human annotation that reshapes the feedback function. We replace that human with an <b>autonomous LLM agent</b>: it reads the fuzzer's telemetry, diagnoses <i>why</i> AFL is stuck, and writes the annotation — across mazes, Super&nbsp;Mario, libpng and a real vTPM.</p>
   <div class="heroactions rv">
     <a class="btn primary" href="#results">▸ See the results</a>
@@ -340,6 +347,7 @@ footer h2{font-size:24px; margin-bottom:14px}
       <span style="color:var(--faint)">~2 LLM calls / decision</span>
     </div>
   </div>
+  <p class="ack"><span class="lbl">ACKNOWLEDGEMENT</span>Developed with <b>Claude Code</b> + <b>Opus</b>.</p>
   <p class="disc">A fork of <span style="color:var(--dim)">RUB-SysSec/ijon</span> with full credit to the original authors — every result here is our own work, reported honestly, negatives included. The agent supplies the feedback function; AFL does the search; the human is out of the loop.</p>
 </div></footer>
 
