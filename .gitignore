@@ -24,3 +24,4 @@ workspace/*/src/*_iter*.c
 
 # regenerable dmg2img crash variant (see make_seed.py)
 workspace/dmg2img/max.dmg
+workspace/libtpms/NVChip
