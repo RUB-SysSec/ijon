@@ -1,0 +1,24 @@
+--- src/tpm2/TPMCmd/tpm/src/main/ExecCommand.c	2026-06-13 16:00:54.245012364 +0530
++++ src/tpm2/TPMCmd/tpm/src/main/ExecCommand.c	2026-06-13 18:58:45.047469787 +0530
+@@ -157,6 +157,21 @@
+         goto Cleanup;
+     // Check to see if the command is implemented.
+     command.index = CommandCodeToCommandIndex(command.code);
++#ifdef _USE_IJON
++    /* analyst agent class-3 annotation (FI+cov frontier, blind): expose the
++     * dispatched command type so the fuzzer reaches all command handlers.
++     * = IJON_SET(command.index); declared minimally because the libtool build
++     * doesn't trigger afl-cc's force-include of afl-ijon-min.h, and that header
++     * clashes with libtpms's config.h. The IJON runtime resolves these symbols
++     * at the harness link (built with AFL_LLVM_IJON). */
++    {
++        extern void ijon_set(uint32_t addr, uint32_t val);
++        extern uint32_t ijon_hashstr(uint32_t old, char *val);
++        static uint32_t _ijon_loc = 0;
++        if (!_ijon_loc) _ijon_loc = ijon_hashstr(__LINE__, (char *)__FILE__);
++        ijon_set(_ijon_loc, (uint32_t)command.index);
++    }
++#endif
+     if(UNIMPLEMENTED_COMMAND_INDEX == command.index)
+     {
+         result = TPM_RC_COMMAND_CODE;
