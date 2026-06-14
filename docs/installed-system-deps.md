@@ -18,8 +18,10 @@ Listed here so they can be removed when the project is done.
 sudo apt-get remove --purge libsdl2-dev libtool gawk
 sudo apt-get autoremove        # drops now-unused transitive deps
 ```
-(Keep `libsdl2-dev` if you still want to render the Mario video locally; the
-captured GIF is already committed, so it's optional.)
+All three are safe to remove — every artifact they produced is committed
+(the Mario GIF `experiments/mario/mario_playthrough.gif`) or regenerable.
+Only reinstall `libsdl2-dev` if you ever want to rebuild/re-render the Mario
+target locally (the GIF itself needs nothing).
 
 ## Also undo (service change, not a package)
 During the libsdl2-dev install we **masked packagekit** to free a stuck apt lock.
