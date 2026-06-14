@@ -55,33 +55,40 @@ workspace/libtpms/build.sh        # libtpms (ASAN) + plain & ijon harnesses
 ```
 Deps installed for this (see `docs/installed-system-deps.md`): `libtool`, `gawk`.
 
-## Result — 8h, no bug, but the annotations measurably worked (honest)
-~58M executions over 8h across 3 instances. **0 crashes, 0 hangs.** An honest
-negative on the bug — the expected low-probability outcome on an OSS-Fuzz-hardened
-target.
+## Result — 12h campaign: no bug, but the annotations measurably (and increasingly) worked
 
-But both agent-proposed annotations demonstrably expanded exploration vs plain AFL:
+A single 12-hour campaign, 3 instances (1 IJON + 2 plain), ~62M executions.
+**0 crashes, 0 hangs** — an honest negative on the bug, the expected outcome on a
+target that OSS-Fuzz fuzzes continuously.
 
-| instance | queue | distinct command **sequences** | distinct command **types** |
-|---|---|---|---|
-| IJON (class-2 + class-3) | 13,800 | **4,950** | **1,852** |
-| plain (main) | 1,989 | 818 | 325 |
-| plain (worker) | 1,960 | 815 | 344 |
+But both agent-proposed annotations expanded TPM state exploration far beyond
+plain AFL — and the gap **widened over time** (snapshots at 8h and 12h):
 
-- **~6.0× more distinct command sequences** (class-2 depth annotation).
-- **~5.7× more distinct command types** (class-3 breadth annotation — it reached
-  far more command handlers).
-- edges incl. IJON map: 13,487 vs 3,454 (3.9×).
+| IJON vs plain | at 8h | at 12h |
+|---|---|---|
+| distinct command **sequences** | 4,950 vs 818 (6.0×) | **9,461 vs 820 (11.5×)** |
+| distinct command **types** | 1,852 vs 325 (5.7×) | **2,277 vs 325 (7.0×)** |
+| IJON corpus size | 13,800 | 20,876 |
 
-So the IJON-LLM combo explored ~6× more of the TPM state space, autonomously, on a
-real security-relevant target — both annotations doing their job. No new memory
-bug surfaced (libtpms is continuously fuzzed by OSS-Fuzz; the paper's 18–32× was a
-hand-tuned annotation vs weaker 2019 AFL — our ~6× is honest, lower partly due to
-the param-noise tail in the agent's full-prefix hash and a stronger AFL++ plain
-baseline). **The reliable outcomes — end-to-end deployment + two autonomous
-complementary annotations + ~6× state expansion — stand; a bug would have been a
-bonus.**
+The trajectory is the real finding: **plain AFL saturated** — 818→820 distinct
+sequences from 8h to 12h, dead flat (it is genuinely stuck, not merely slow) —
+while **IJON nearly doubled** (4,950 → 9,461). So the two autonomous annotations
+(class-2 sequence *depth* + class-3 command-type *breadth*) don't give a one-shot
+boost; their advantage **compounds with time**, exactly what state-guided
+exploration should do.
 
-Follow-up that could improve the ratio (autonomous): feed back the param-noise
-observation so the agent refines the class-2 annotation to command-codes-only
-(less corpus inflation, more focused sequence search) — the libpng-closure pattern.
+No new memory bug surfaced (libtpms is OSS-Fuzz-hardened; the paper's 18–32× was a
+hand-tuned annotation vs weaker 2019 AFL — our ratio is honest, held back partly
+by the param-noise tail in the agent's full-prefix hash and a stronger AFL++ plain
+baseline). **The reliable outcomes — end-to-end deployment on a real vTPM, two
+autonomous complementary annotations, and a state-exploration advantage that grows
+to 11.5× — stand; a bug would have been the bonus.**
+
+### Notes
+- The 12h was run as 8h + a `-i -` resume of the same sync dir (+4h). AFL++
+  *fast-resume* choked on the IJON instance's mild instability (persistent-mode +
+  TPM state isn't fully idempotent across loop iterations); resume it with
+  `AFL_NO_FASTRESUME=1` (normal re-calibration). Plain instances resume either way.
+- Autonomous follow-up that could raise the ratio: feed back the param-noise
+  observation so the agent refines the class-2 annotation to command-codes-only
+  (less corpus inflation, more focused sequence search) — the libpng-closure pattern.
