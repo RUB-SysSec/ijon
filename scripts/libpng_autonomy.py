@@ -37,14 +37,14 @@ from harness.model import AnalystModel
 from harness.localize import load_fi, load_cov, build_localization_context
 from chunk_seq_diversity import analyse
 
-AFL = Path("/home/sanjay/san-home/research/repos/AFLplusplus")
+AFL = Path(os.environ.get("AFL_ROOT", "/opt/AFLplusplus"))
 WS = REPO / "workspace" / "libpng"
 LP = WS / "build" / "libpng"
 ZINST = WS / "build" / "zlib" / "install"
 CRCOFF_CC = WS / "build" / "libpng_crcoff_fuzzer.cc"
 OUT = REPO / "experiments" / "libpng_autonomy"
 KEEP_FACTOR = 5.0   # diversity must beat plain baseline by >=5x to count as "unlocked"
-os.environ.setdefault("TMPDIR", "/home/sanjay/san-home/tmp")
+os.environ.setdefault("TMPDIR", "/tmp")
 
 
 def sh(cmd, **kw):

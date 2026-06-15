@@ -5,8 +5,8 @@
 # roadblock and does not demonstrate IJON_MAX necessity — see
 # docs/architecture-design.md. Kept for reproducibility.
 set -euo pipefail
-export TMPDIR="${TMPDIR:-/home/sanjay/san-home/tmp}"; mkdir -p "$TMPDIR"
-AFL="${AFL_ROOT:-/home/sanjay/san-home/research/repos/AFLplusplus}"
+export TMPDIR="${TMPDIR:-/tmp}"; mkdir -p "$TMPDIR"
+AFL="${AFL_ROOT:?set AFL_ROOT to your AFL++ (with IJON) build}"
 export PATH="$AFL:$PATH"
 WS="$(cd "$(dirname "$0")" && pwd)"; B="$WS/build"; mkdir -p "$B" "$WS/targets" "$WS/in"
 

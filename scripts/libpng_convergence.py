@@ -45,15 +45,15 @@ from harness.localize import load_fi, load_cov, build_localization_context
 from harness.coverage import CoverageProbe
 from chunk_seq_diversity import analyse           # the class-2 metric
 
-AFL = Path("/home/sanjay/san-home/research/repos/AFLplusplus")
-LLVM = Path("/home/sanjay/san-home/research/llvm-stuff/llvm-project/build/bin")
+AFL = Path(os.environ.get("AFL_ROOT", "/opt/AFLplusplus"))
+LLVM = Path(os.environ.get("LLVM_BIN", "/usr/lib/llvm/bin"))
 WS = REPO / "workspace" / "libpng"
 LP = WS / "build" / "libpng"
 ZINST = WS / "build" / "zlib" / "install"
 CRCOFF_CC = WS / "build" / "libpng_crcoff_fuzzer.cc"   # CRC-disabled harness (build.sh)
 PATCH = WS / "patches" / "chunk_seq_log.patch"
 OUT = REPO / "experiments" / "libpng_convergence"
-os.environ.setdefault("TMPDIR", "/home/sanjay/san-home/tmp")
+os.environ.setdefault("TMPDIR", "/tmp")
 
 
 def sh(cmd, **kw):

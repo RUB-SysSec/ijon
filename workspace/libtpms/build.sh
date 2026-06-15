@@ -8,11 +8,11 @@
 # (workers). They share one sync dir; IJON cracks state barriers, plain exploits.
 #
 # Deps (apt): libtool gawk  (+ openssl already present). See docs/installed-system-deps.md.
-# Usage: ./build.sh        Source tree in ./build/ (gitignored). Never writes /tmp.
+# Usage: ./build.sh        Source tree in ./build/ (gitignored).
 set -euo pipefail
 
-export TMPDIR="${TMPDIR:-/home/sanjay/san-home/tmp}"; mkdir -p "$TMPDIR"
-AFL="${AFL_ROOT:-/home/sanjay/san-home/research/repos/AFLplusplus}"
+export TMPDIR="${TMPDIR:-/tmp}"; mkdir -p "$TMPDIR"
+AFL="${AFL_ROOT:?set AFL_ROOT to your AFL++ (with IJON) build}"
 export PATH="$AFL:$PATH"; export AFL_PATH="$AFL/include"; export AFL_QUIET=1
 WS="$(cd "$(dirname "$0")" && pwd)"
 LT="$WS/build/libtpms"

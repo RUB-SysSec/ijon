@@ -12,7 +12,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-DEFAULT_AFL_ROOT = Path("/home/sanjay/san-home/research/repos/AFLplusplus")
+DEFAULT_AFL_ROOT = Path(os.environ.get("AFL_ROOT", "/opt/AFLplusplus"))
 
 
 @dataclass(frozen=True)

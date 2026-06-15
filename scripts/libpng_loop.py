@@ -29,12 +29,12 @@ from harness.localize import (load_fi, load_cov, build_localization_context,
                               localization_hint)
 from harness.coverage import CoverageProbe
 
-AFL = Path("/home/sanjay/san-home/research/repos/AFLplusplus")
-LLVM = Path("/home/sanjay/san-home/research/llvm-stuff/llvm-project/build/bin")
+AFL = Path(os.environ.get("AFL_ROOT", "/opt/AFLplusplus"))
+LLVM = Path(os.environ.get("LLVM_BIN", "/usr/lib/llvm/bin"))
 WS = REPO / "workspace" / "libpng"
 LP = WS / "build" / "libpng"
 ZINST = WS / "build" / "zlib" / "install"
-os.environ.setdefault("TMPDIR", "/home/sanjay/san-home/tmp")
+os.environ.setdefault("TMPDIR", "/tmp")
 
 
 def sh(cmd, **kw):

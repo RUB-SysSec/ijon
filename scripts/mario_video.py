@@ -26,10 +26,10 @@ REPO = Path(__file__).resolve().parents[1]
 WS = REPO / "workspace" / "mario"
 SRC = WS / "build" / "src"
 RUN = WS / "build" / "run"
-AFL = Path("/home/sanjay/san-home/research/repos/AFLplusplus")
+AFL = Path(os.environ.get("AFL_ROOT", "/opt/AFLplusplus"))
 W, H = 256, 240
 SKY_TILE = 292          # dominant background tile (found via nametable histogram)
-os.environ.setdefault("TMPDIR", "/home/sanjay/san-home/tmp")
+os.environ.setdefault("TMPDIR", "/tmp")
 
 
 def sh(cmd, **kw):
@@ -44,7 +44,8 @@ def ensure_capture_binary() -> Path:
     if out.exists():
         return out
     if "g_capture" not in (SRC / "Main.cpp").read_text():
-        sh(["git", "apply", str(WS / "patches" / "capture_mode.patch")], cwd=str(SRC.parent))
+        # patch uses a/Main.cpp · b/Main.cpp headers -> apply with -p1 from src/
+        sh(["git", "apply", "-p1", str(WS / "patches" / "capture_mode.patch")], cwd=str(SRC))
     cf = ["-std=c++11", "-O0", "-g", "-Wno-narrowing", f"-I{SRC}",
           *subprocess.check_output(["sdl2-config", "--cflags"]).decode().split()]
     obj = WS / "build" / "obj_capture"; obj.mkdir(exist_ok=True)

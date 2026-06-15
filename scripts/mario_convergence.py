@@ -27,12 +27,12 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 from chunk_seq_diversity import analyse  # noqa  (unused; keeps scripts/ importable)
 
-AFL = Path("/home/sanjay/san-home/research/repos/AFLplusplus")
+AFL = Path(os.environ.get("AFL_ROOT", "/opt/AFLplusplus"))
 WS = REPO / "workspace" / "mario"
 SRC = WS / "build" / "src"
 RUN = WS / "build" / "run"
 OUT = REPO / "experiments" / "mario"
-os.environ.setdefault("TMPDIR", "/home/sanjay/san-home/tmp")
+os.environ.setdefault("TMPDIR", "/tmp")
 TRACE_RE = re.compile(rb"^(\d+),(\d+)$", re.M)
 
 

@@ -1,5 +1,5 @@
---- /media/sanjay/f574986f-8197-4e72-a69d-87ddf200a6a9/sanjay/research/tii/tii24/repos/dev-claude/ijon-data-ref/SuperMarioBros-C/source/Main.cpp	2026-06-12 09:53:45.433661643 +0530
-+++ build/src/Main.cpp	2026-06-13 15:43:35.519883090 +0530
+--- a/Main.cpp
++++ b/Main.cpp
 @@ -20,6 +20,12 @@
  static SMBEngine* smbEngine = nullptr;
  static uint32_t renderBuffer[RENDER_WIDTH * RENDER_HEIGHT];

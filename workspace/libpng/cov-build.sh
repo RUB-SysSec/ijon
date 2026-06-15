@@ -4,8 +4,8 @@
 # Clean clang (NO AFL instrumentation) + -fprofile-instr-generate -fcoverage-mapping.
 # libFuzzer driver (-fsanitize=fuzzer) so `./bin <files...>` replays them.
 set -euo pipefail
-export TMPDIR="${TMPDIR:-/home/sanjay/san-home/tmp}"; mkdir -p "$TMPDIR"
-LLVM="${LLVM_BIN:-/home/sanjay/san-home/research/llvm-stuff/llvm-project/build/bin}"
+export TMPDIR="${TMPDIR:-/tmp}"; mkdir -p "$TMPDIR"
+LLVM="${LLVM_BIN:?set LLVM_BIN to your LLVM bin dir}"
 export PATH="$LLVM:$PATH"
 WS="$(cd "$(dirname "$0")" && pwd)"
 BUILD="$WS/build"; COV="$BUILD/cov"; mkdir -p "$COV" "$WS/targets"

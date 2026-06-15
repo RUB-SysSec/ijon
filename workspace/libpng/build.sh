@@ -6,11 +6,11 @@
 # CRC-disabled contrast target for quantifying the roadblock.
 #
 # Usage:  ./build.sh
-# Scratch/clone tree goes in ./build/ (gitignored). Never writes to /tmp.
+# Scratch/clone tree goes in ./build/ (gitignored)
 set -euo pipefail
 
-export TMPDIR="${TMPDIR:-/home/sanjay/san-home/tmp}"; mkdir -p "$TMPDIR"
-AFL="${AFL_ROOT:-/home/sanjay/san-home/research/repos/AFLplusplus}"
+export TMPDIR="${TMPDIR:-/tmp}"; mkdir -p "$TMPDIR"
+AFL="${AFL_ROOT:?set AFL_ROOT to your AFL++ (with IJON) build}"
 export PATH="$AFL:$PATH"
 WS="$(cd "$(dirname "$0")" && pwd)"
 BUILD="$WS/build"; ZINST="$BUILD/zlib/install"; LIBPNG="$BUILD/libpng"

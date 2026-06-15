@@ -13,11 +13,11 @@
 # into an infinite loop at reset().
 #
 # Usage: ./build.sh        (builds targets/mario_plain + targets/mario_ijon)
-# Source staged into ./build/ (gitignored). Never writes to /tmp.
+# Source staged into ./build/ (gitignored)
 set -euo pipefail
 
-export TMPDIR="${TMPDIR:-/home/sanjay/san-home/tmp}"; mkdir -p "$TMPDIR"
-AFL="${AFL_ROOT:-/home/sanjay/san-home/research/repos/AFLplusplus}"
+export TMPDIR="${TMPDIR:-/tmp}"; mkdir -p "$TMPDIR"
+AFL="${AFL_ROOT:?set AFL_ROOT to your AFL++ (with IJON) build}"
 export PATH="$AFL:$PATH"; export AFL_PATH="$AFL/include"; export AFL_QUIET=1
 export AFL_DONT_OPTIMIZE=1
 WS="$(cd "$(dirname "$0")" && pwd)"
