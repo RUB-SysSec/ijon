@@ -1,6 +1,6 @@
 # IJON Reloaded — an LLM as the IJON fuzzing analyst
 
-> Teaching a language model to *usher fuzzers through the maze.*
+> Using an LLM to *usher fuzzers through the maze.*
 
 **[IJON](https://github.com/RUB-SysSec/ijon)** (Aschermann et al., IEEE S&P 2020)
 lets a **human analyst** break fuzzing roadblocks by adding a tiny source
