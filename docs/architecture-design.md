@@ -481,6 +481,37 @@ each is a faithful instance of a difficulty the IJON paper itself notes.
 - **Feeding solving inputs back** into a long-running campaign rather than fresh
   runs per iteration.
 
+## Roadmap — what v2.0 will add
+
+**v1.0 (this release).** *Function-granularity* localization: join FI's static call
+graph with llvm-cov to find the **frontier** (covered caller → reachable-but-
+uncovered callee, ranked by gated complexity) + the shared **gate** the blocked
+handlers commonly call; slice those ~10 functions into the prompt. Plus the full
+autonomous loop, the 3-class diagnosis, source-coverage keep/revert, and the
+evaluation in `experiments/`.
+
+**v2.0 (planned) — branch-level localization.** The v1 frontier is function-level:
+it finds the *missing edge* A→B but not *why* it's missing. When the blocking
+decision lives inside a **covered** intermediate function — A does
+`X(); Y(); if (Z()==ok) B();` and the blocker is the value computed in X/Y/Z — v1
+shows the LLM `if (Z()==ok)` and stops: X/Y/Z are covered, so not "frontier", and
+not sliced. v2 closes this by going from *which functions ran* to *which **branch**
+inside the covered function didn't, and what value gated it*:
+1. **Keep llvm-cov's per-branch/region coverage** (v1 collapses it to `count>0`
+   per function). Inside a covered caller, find the **uncovered branch** whose
+   taken-side leads toward the frontier callee, and read off its **condition** —
+   the gate.
+2. **Backward data-flow slice from the gating condition** — which of the upstream
+   covered functions' outputs/globals the guard tests — and slice exactly those
+   into the prompt, so the agent sees the *decision chain*, not just the call site.
+3. **(Optional) a branch/call trace of the deepest near-miss** — "reached depth N
+   inside Y, then took the else-branch" — the strongest fork signal, most
+   instrumentation.
+
+This is the highest-value localization upgrade for hard real targets, where the
+blocker is realistically 2–3 covered functions deep. Deferred deliberately so v1
+ships first (user discussion, 2026-06).
+
 ## 10. Reproduction
 
 ```bash

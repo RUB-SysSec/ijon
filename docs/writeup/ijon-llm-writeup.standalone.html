@@ -135,6 +135,11 @@ code{font-family:'JetBrains Mono'; background:#13171c; border:1px solid var(--li
 .pbox.out{border-color:rgba(194,242,74,.42)} .pbox.out .pk{color:var(--lime)} .pbox.out b{color:var(--lime)}
 .pop{display:flex; align-items:center; justify-content:center; color:var(--lime); font-family:'Chakra Petch'; font-weight:700; font-size:19px}
 @media(max-width:760px){.pipe{flex-direction:column} .pop{transform:rotate(90deg)}}
+/* roadmap / v2 callout */
+.roadmap{border:1px solid rgba(111,230,255,.28); border-left:3px solid var(--cyan); border-radius:6px; background:rgba(111,230,255,.045); padding:18px 21px; margin:22px 0 4px}
+.roadmap .rmlbl{font-family:'Press Start 2P'; font-size:9px; color:var(--cyan); letter-spacing:1px; display:block; margin-bottom:11px}
+.roadmap p{margin:0; color:var(--dim); font-size:13.5px; max-width:none; line-height:1.65}
+.roadmap b{color:var(--ink)} .roadmap code{color:var(--cyan); border-color:rgba(111,230,255,.22); background:#0e171b}
 
 /* ---- class cards ---- */
 .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:10px}
@@ -267,6 +272,11 @@ footer h2{font-size:24px; margin-bottom:14px}
     <div class="pbox out"><span class="pk">PROMPT</span><b>~10 focused functions</b> <i>to the agent</i></div>
   </div>
   <p class="loopnote">On libpng this surfaced the uncovered chunk handlers (<code>png_handle_iCCP/…</code>) and their shared CRC gate; on the 94k-LOC libtpms it surfaced <code>ExecuteCommand</code> and the session/auth gate — the right handful, mechanically.</p>
+
+  <div class="roadmap rv">
+    <span class="rmlbl">▸ v2.0 · ROADMAP</span>
+    <p><b>Branch-level localization.</b> v1 (this release) finds the missing edge A→B but not <i>why</i> — when the blocker lives inside a <i>covered</i> intermediate function (<code>X(); Y(); if (Z()==ok) B();</code>) it shows the model <code>if (Z()==ok)</code> and stops, because X/Y/Z ran. v2 will go from <i>which functions ran</i> to <i>which <b>branch</b> didn't</i>: keep llvm-cov's per-branch coverage + a backward slice from the gating condition, so the agent can pinpoint a blocker buried <b>2–3 covered functions deep</b> — the X·Y·Z case. <i>Deferred on purpose so v1 ships first.</i></p>
+  </div>
 </div></section>
 
 <!-- CLASSES -->
