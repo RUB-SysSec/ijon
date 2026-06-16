@@ -125,6 +125,16 @@ code{font-family:'JetBrains Mono'; background:#13171c; border:1px solid var(--li
 .loopnote{font-size:13px; color:var(--faint)}
 .loopnote b{color:var(--amber)}
 @media(max-width:760px){.loop{grid-template-columns:1fr} .loop .step:not(:last-child)::after{content:"↓"; right:50%; bottom:-11px; top:auto; transform:translateX(50%)}}
+/* localization pipeline */
+.pipe{display:flex; flex-wrap:wrap; align-items:stretch; gap:10px; margin:18px 0 6px}
+.pbox{flex:1 1 175px; min-width:155px; background:var(--bg2); border:1px solid var(--line); border-radius:6px; padding:14px 15px; font-size:12.5px; color:var(--dim); line-height:1.55}
+.pbox .pk{font-family:'Press Start 2P'; font-size:8px; color:var(--faint); letter-spacing:1px; display:block; margin-bottom:9px}
+.pbox i{color:var(--faint); font-style:normal}
+.pbox b{color:var(--ink)}
+.pbox.fr{border-color:rgba(255,180,58,.35)} .pbox.fr .pk{color:var(--amber)} .pbox.fr b{color:var(--amber)}
+.pbox.out{border-color:rgba(194,242,74,.42)} .pbox.out .pk{color:var(--lime)} .pbox.out b{color:var(--lime)}
+.pop{display:flex; align-items:center; justify-content:center; color:var(--lime); font-family:'Chakra Petch'; font-weight:700; font-size:19px}
+@media(max-width:760px){.pipe{flex-direction:column} .pop{transform:rotate(90deg)}}
 
 /* ---- class cards ---- */
 .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:10px}
@@ -244,6 +254,19 @@ footer h2{font-size:24px; margin-bottom:14px}
     <div class="step"><div class="n">05</div><div class="t">Keep / revert</div><div class="d">Real source-coverage delta decides: kept if it helped, reverted + fed back if not.</div></div>
   </div>
   <p class="loopnote">Annotations <b>accumulate</b>; failed attempts are fed back so the model doesn't repeat them. Keep/revert is driven by <b>source coverage</b>, never raw <code>edges_found</code> — because IJON map entries inflate the edge count and would otherwise fake "progress".</p>
+
+  <h3>Localization — how the agent sees ~10 functions, not 94k LOC</h3>
+  <p>The agent never gets the whole codebase. A deterministic step joins the <b>static call graph</b> (fuzz-introspector) with <b>runtime coverage</b> (llvm-cov) to find the <i>frontier</i> — and slices just those functions into the prompt. So coverage does double duty: it drives keep/revert <b>and</b> it's what makes the analyst tractable on a real library.</p>
+  <div class="pipe">
+    <div class="pbox"><span class="pk">STATIC</span>fuzz-introspector <b>call graph</b> <i>— who-calls-whom · reachable set · complexity</i></div>
+    <div class="pop">×</div>
+    <div class="pbox"><span class="pk">RUNTIME</span>llvm-cov <b>coverage</b> <i>— which functions actually executed</i></div>
+    <div class="pop">→</div>
+    <div class="pbox fr"><span class="pk">FRONTIER</span>covered caller → reachable-but-<b>uncovered</b> callee, ranked by the unexplored complexity it gates <i>(+ the shared gate the blocked handlers commonly call — the check, not just the hottest loop)</i></div>
+    <div class="pop">→</div>
+    <div class="pbox out"><span class="pk">PROMPT</span><b>~10 focused functions</b> <i>to the agent</i></div>
+  </div>
+  <p class="loopnote">On libpng this surfaced the uncovered chunk handlers (<code>png_handle_iCCP/…</code>) and their shared CRC gate; on the 94k-LOC libtpms it surfaced <code>ExecuteCommand</code> and the session/auth gate — the right handful, mechanically.</p>
 </div></section>
 
 <!-- CLASSES -->
